@@ -34,3 +34,12 @@ jobs:
 
       - name: Build & Test
         run: ./gradlew build
+
+      - name: Coverage (kover verify + report)
+        run: ./gradlew koverVerify koverXmlReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: build/reports/kover/report.xml
+          use_oidc: true

@@ -1,5 +1,9 @@
 # mate
 
+[![CI](https://github.com/KilgoreT/mate/actions/workflows/ci.yml/badge.svg)](https://github.com/KilgoreT/mate/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/KilgoreT/mate/branch/master/graph/badge.svg)](https://codecov.io/gh/KilgoreT/mate)
+[![JitPack](https://jitpack.io/v/KilgoreT/mate.svg)](https://jitpack.io/#KilgoreT/mate)
+
 > «У mate нет двух одинаковых причин его пить».
 
 Концептуальная TEA-библиотека (The Elm Architecture) для Kotlin

@@ -21,6 +21,9 @@ kotlin {
             // её потребители подключают mate-test в testImplementation.
             implementation(kotlin("test"))
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
 
