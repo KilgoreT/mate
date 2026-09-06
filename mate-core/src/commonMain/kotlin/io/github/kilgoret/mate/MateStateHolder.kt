@@ -3,8 +3,8 @@ package io.github.kilgoret.mate
 import kotlinx.coroutines.flow.StateFlow
 
 /** Публичный контракт раннера для UI: поток состояния + вход сообщений. */
-interface MateStateHolder<State, Message> {
+public interface MateStateHolder<State, Message> {
+    public val state: StateFlow<State>
 
-    val state: StateFlow<State>
-    fun accept(message: Message)
+    public fun accept(message: Message)
 }

@@ -5,9 +5,9 @@ package io.github.kilgoret.mate
  * эффекта; результат исполнения возвращается в цикл НОВЫМ Message
  * через [consumer] — колбэков в обход цикла не существует.
  */
-interface MateEffectHandler<Message, out Effect> {
-    suspend fun runEffect(
+public interface MateEffectHandler<Message, out Effect> {
+    public suspend fun runEffect(
         effect: @UnsafeVariance Effect,
-        consumer: (Message) -> Unit
+        consumer: (Message) -> Unit,
     )
 }

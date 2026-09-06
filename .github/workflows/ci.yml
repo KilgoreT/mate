@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -26,5 +26,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle
 
-      - name: Build
+      - name: Code style (ktlint)
+        run: ./gradlew ktlintCheck
+
+      - name: Public API check (BCV)
+        run: ./gradlew apiCheck
+
+      - name: Build & Test
         run: ./gradlew build

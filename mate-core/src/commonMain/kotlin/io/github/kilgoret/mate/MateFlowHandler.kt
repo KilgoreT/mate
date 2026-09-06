@@ -10,12 +10,15 @@ import kotlinx.coroutines.Job
  * Roadmap v1: упраздняется в пользу декларативных
  * `subscriptions(State)` с диффом в раннере.
  */
-interface MateFlowHandler<Message, Effect> : MateEffectHandler<Message, Effect> {
+public interface MateFlowHandler<Message, Effect> : MateEffectHandler<Message, Effect> {
+    public var job: Job?
 
-    var job: Job?
+    public fun subscribe(
+        scope: CoroutineScope,
+        send: (Message) -> Unit,
+    )
 
-    fun subscribe(scope: CoroutineScope, send: (Message) -> Unit)
-    fun unsubscribe() {
+    public fun unsubscribe() {
         job?.cancel()
         job = null
     }

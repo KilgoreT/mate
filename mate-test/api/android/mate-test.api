@@ -1,0 +1,23 @@
+public final class io/github/kilgoret/mate/test/MateTestHelperKt {
+	public static final fun assertEffects (Lkotlin/Pair;Ljava/util/Set;Ljava/lang/String;)V
+	public static synthetic fun assertEffects$default (Lkotlin/Pair;Ljava/util/Set;Ljava/lang/String;ILjava/lang/Object;)V
+	public static final fun assertEffectsCount (Lkotlin/Pair;ILjava/lang/String;)V
+	public static synthetic fun assertEffectsCount$default (Lkotlin/Pair;ILjava/lang/String;ILjava/lang/Object;)V
+	public static final fun assertNoEffects (Lkotlin/Pair;Ljava/lang/String;)V
+	public static synthetic fun assertNoEffects$default (Lkotlin/Pair;Ljava/lang/String;ILjava/lang/Object;)V
+	public static final fun assertState (Lkotlin/Pair;Ljava/lang/Object;Ljava/lang/String;)V
+	public static synthetic fun assertState$default (Lkotlin/Pair;Ljava/lang/Object;Ljava/lang/String;ILjava/lang/Object;)V
+	public static final fun testReduce (Lio/github/kilgoret/mate/MateReducer;Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;
+	public static final fun testScenario (Lio/github/kilgoret/mate/MateReducer;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/util/List;
+}
+
+public final class io/github/kilgoret/mate/test/StateBuilder {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun build ()Ljava/lang/Object;
+	public final fun modify (Lkotlin/jvm/functions/Function1;)Lio/github/kilgoret/mate/test/StateBuilder;
+}
+
+public final class io/github/kilgoret/mate/test/StateBuilderKt {
+	public static final fun toBuilder (Ljava/lang/Object;)Lio/github/kilgoret/mate/test/StateBuilder;
+}
+

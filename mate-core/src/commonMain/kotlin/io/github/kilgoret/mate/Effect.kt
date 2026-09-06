@@ -12,4 +12,4 @@ package io.github.kilgoret.mate
  *
  * > «У mate нет двух одинаковых причин его пить».
  */
-interface Effect
+public interface Effect

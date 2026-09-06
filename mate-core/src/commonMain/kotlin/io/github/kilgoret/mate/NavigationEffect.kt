@@ -5,7 +5,7 @@ package io.github.kilgoret.mate
  * nav-эффекты подгруппами-интерфейсами ВНУТРИ этого семейства
  * (family-декларация — только базовая, см. правила роутинга).
  */
-interface NavigationEffect : Effect {
+public interface NavigationEffect : Effect {
     /** Navigate back (закрыть текущий экран). */
-    data object Back : NavigationEffect
+    public data object Back : NavigationEffect
 }

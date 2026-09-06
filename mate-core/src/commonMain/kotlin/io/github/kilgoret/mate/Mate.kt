@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
  * потокобезопасность как свойство раннера), политика ошибок,
  * роутинг-табличка эффектов, MateObserver.
  */
-class Mate<State, Message, Effect>(
+public class Mate<State, Message, Effect>(
     initState: State,
     reducer: MateReducer<State, Message, Effect>,
     initEffects: Set<Effect>,
@@ -24,7 +24,6 @@ class Mate<State, Message, Effect>(
 ) : MateStateHolder<State, Message>,
     MateReducer<State, Message, Effect> by reducer,
     MateEffectHandler<Message, Effect> {
-
     private val _state: MutableStateFlow<State> = MutableStateFlow(initState)
 
     override val state: StateFlow<State>
@@ -49,13 +48,16 @@ class Mate<State, Message, Effect>(
         }
     }
 
-    override suspend fun runEffect(effect: Effect, consumer: (Message) -> Unit) {
+    override suspend fun runEffect(
+        effect: Effect,
+        consumer: (Message) -> Unit,
+    ) {
         effectHandlerSet.forEach {
             it.runEffect(effect, consumer)
         }
     }
 
-    fun dispose() {
+    public fun dispose() {
         effectHandlerSet.filterIsInstance<MateFlowHandler<Message, Effect>>()
             .forEach { it.unsubscribe() }
     }

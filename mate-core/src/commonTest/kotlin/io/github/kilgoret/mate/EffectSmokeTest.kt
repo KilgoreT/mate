@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 
 /** Э0-смоук: commonTest компилируется и гоняется на всех таргетах. */
 class EffectSmokeTest {
-
     private data class Ping(val id: Long) : Effect
 
     @Test

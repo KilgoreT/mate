@@ -8,13 +8,15 @@ package io.github.kilgoret.mate
  * гейт готовности + FIFO-очередь отложенной навигации, интерпретация
  * через navGraph.
  */
-abstract class MateNavigationEffectHandler<Msg>(
+public abstract class MateNavigationEffectHandler<Msg>(
     protected val navigator: Navigator,
 ) : MateTypedEffectHandler<Msg, NavigationEffect>() {
-
     final override fun filter(effect: Effect): NavigationEffect? = effect as? NavigationEffect
 
-    final override suspend fun onEffect(effect: NavigationEffect, consumer: (Msg) -> Unit) {
+    final override suspend fun onEffect(
+        effect: NavigationEffect,
+        consumer: (Msg) -> Unit,
+    ) {
         when (effect) {
             is NavigationEffect.Back -> navigator.back()
             else -> onScreenEffect(effect)
