@@ -9,10 +9,13 @@ import kotlinx.coroutines.Job
  * [MateEffectHandler]) — передаётся раннеру отдельным параметром.
  *
  * Ошибки потока — обязанность самого handler'а (catch внутри flow).
- *
- * Roadmap v1: упраздняется в пользу декларативных
- * `subscriptions(State)` с диффом в раннере.
  */
+@Deprecated(
+    message =
+        "Императивные подписки заменены декларативными: объявите " +
+            "subscriptions(State) -> Set<Sub> и MateSubscriptionHandler — " +
+            "runtime сам диффит набор после каждого изменения состояния.",
+)
 public interface MateFlowHandler<Message> {
     public var job: Job?
 

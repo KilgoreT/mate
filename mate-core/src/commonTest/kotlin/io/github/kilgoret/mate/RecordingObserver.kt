@@ -46,4 +46,19 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
     ) {
         events += "caused:$parent->$message"
     }
+
+    override fun onSubscriptionStarted(sub: Sub) {
+        events += "sub-start:$sub"
+    }
+
+    override fun onSubscriptionStopped(sub: Sub) {
+        events += "sub-stop:$sub"
+    }
+
+    override fun onSubscriptionError(
+        sub: Sub,
+        error: Throwable,
+    ) {
+        events += "sub-error:$sub:${error.message}"
+    }
 }

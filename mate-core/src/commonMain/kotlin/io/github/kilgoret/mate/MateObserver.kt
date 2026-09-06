@@ -45,4 +45,16 @@ public interface MateObserver<State, Message, Effect> {
         parent: Effect,
         message: Message,
     ): Unit = Unit
+
+    /** Дифф включил подписку (появилась в subscriptions(state)). */
+    public fun onSubscriptionStarted(sub: Sub): Unit = Unit
+
+    /** Дифф погасил подписку (исчезла из subscriptions(state)). */
+    public fun onSubscriptionStopped(sub: Sub): Unit = Unit
+
+    /** Поток подписки упал необработанным исключением. */
+    public fun onSubscriptionError(
+        sub: Sub,
+        error: Throwable,
+    ): Unit = Unit
 }

@@ -2,8 +2,8 @@ public abstract interface class io/github/kilgoret/mate/Effect {
 }
 
 public final class io/github/kilgoret/mate/Mate : io/github/kilgoret/mate/MateReducer, io/github/kilgoret/mate/MateStateHolder {
-	public fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;)V
-	public synthetic fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;)V
+	public synthetic fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun accept (Ljava/lang/Object;)V
 	public final fun dispose ()V
 	public fun getState ()Lkotlinx/coroutines/flow/StateFlow;
@@ -27,6 +27,19 @@ public final class io/github/kilgoret/mate/MateError$AmbiguousEffect : io/github
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
 	public final fun getFamilies ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$AmbiguousSubscription : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;Ljava/util/List;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;Ljava/util/List;)Lio/github/kilgoret/mate/MateError$AmbiguousSubscription;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$AmbiguousSubscription;Lio/github/kilgoret/mate/Sub;Ljava/util/List;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$AmbiguousSubscription;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFamilies ()Ljava/util/List;
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -79,6 +92,30 @@ public final class io/github/kilgoret/mate/MateError$OrphanEffect : io/github/ki
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class io/github/kilgoret/mate/MateError$OrphanSubscription : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;)Lio/github/kilgoret/mate/MateError$OrphanSubscription;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$OrphanSubscription;Lio/github/kilgoret/mate/Sub;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$OrphanSubscription;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$SubscriptionFailed : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)Lio/github/kilgoret/mate/MateError$SubscriptionFailed;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$SubscriptionFailed;Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$SubscriptionFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Ljava/lang/Throwable;
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class io/github/kilgoret/mate/MateException : java/lang/IllegalStateException {
 	public fun <init> (Lio/github/kilgoret/mate/MateError;)V
 	public final fun getError ()Lio/github/kilgoret/mate/MateError;
@@ -120,6 +157,9 @@ public abstract interface class io/github/kilgoret/mate/MateObserver {
 	public abstract fun onEffectStarted (Ljava/lang/Object;)V
 	public abstract fun onMessage (Ljava/lang/Object;Ljava/lang/Object;)V
 	public abstract fun onReduced (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
+	public abstract fun onSubscriptionError (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)V
+	public abstract fun onSubscriptionStarted (Lio/github/kilgoret/mate/Sub;)V
+	public abstract fun onSubscriptionStopped (Lio/github/kilgoret/mate/Sub;)V
 }
 
 public final class io/github/kilgoret/mate/MateObserver$DefaultImpls {
@@ -129,6 +169,9 @@ public final class io/github/kilgoret/mate/MateObserver$DefaultImpls {
 	public static fun onEffectStarted (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;)V
 	public static fun onMessage (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Object;)V
 	public static fun onReduced (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
+	public static fun onSubscriptionError (Lio/github/kilgoret/mate/MateObserver;Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)V
+	public static fun onSubscriptionStarted (Lio/github/kilgoret/mate/MateObserver;Lio/github/kilgoret/mate/Sub;)V
+	public static fun onSubscriptionStopped (Lio/github/kilgoret/mate/MateObserver;Lio/github/kilgoret/mate/Sub;)V
 }
 
 public abstract interface class io/github/kilgoret/mate/MateReducer {
@@ -143,6 +186,11 @@ public final class io/github/kilgoret/mate/MateReducerKt {
 public abstract interface class io/github/kilgoret/mate/MateStateHolder {
 	public abstract fun accept (Ljava/lang/Object;)V
 	public abstract fun getState ()Lkotlinx/coroutines/flow/StateFlow;
+}
+
+public abstract interface class io/github/kilgoret/mate/MateSubscriptionHandler {
+	public abstract fun flow (Lio/github/kilgoret/mate/Sub;)Lkotlinx/coroutines/flow/Flow;
+	public abstract fun getSubFamily ()Lkotlin/reflect/KClass;
 }
 
 public abstract interface class io/github/kilgoret/mate/NavigationEffect : io/github/kilgoret/mate/Effect {
@@ -163,5 +211,8 @@ public final class io/github/kilgoret/mate/ReducerChainKt {
 	public static final fun begin (Ljava/lang/Object;)Lkotlin/Pair;
 	public static final fun then (Lkotlin/Pair;Lkotlin/jvm/functions/Function1;)Lkotlin/Pair;
 	public static final fun withEffect (Lkotlin/Pair;Ljava/lang/Object;)Lkotlin/Pair;
+}
+
+public abstract interface class io/github/kilgoret/mate/Sub {
 }
 

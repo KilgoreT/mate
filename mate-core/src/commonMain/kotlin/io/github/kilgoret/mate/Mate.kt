@@ -1,7 +1,9 @@
 package io.github.kilgoret.mate
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +48,8 @@ public class Mate<State, Message, E : Effect>(
     initEffects: Set<E>,
     effectHandlers: List<MateEffectHandler<Message, *>>,
     private val flowHandlers: List<MateFlowHandler<Message>> = emptyList(),
+    private val subscriptions: ((State) -> Set<Sub>)? = null,
+    subscriptionHandlers: List<MateSubscriptionHandler<Message, *>> = emptyList(),
     private val observers: List<MateObserver<State, Message, E>> = emptyList(),
     private val failPolicy: MateFailPolicy = MateFailPolicy.Strict,
     private val coroutineScope: CoroutineScope,
@@ -73,10 +77,29 @@ public class Mate<State, Message, E : Effect>(
     /** Кэш резолва «конкретный класс эффекта → исполнитель». */
     private val resolveCache = mutableMapOf<KClass<*>, MateEffectHandler<Message, *>>()
 
+    /** Табличка «семейство подписок → исполнитель»; дубль — fail сразу. */
+    private val subRegistry: Map<KClass<*>, MateSubscriptionHandler<Message, *>> =
+        buildMap {
+            subscriptionHandlers.forEach { handler ->
+                val previous = put(handler.subFamily, handler)
+                require(previous == null) {
+                    "Two subscription handlers declare the same family " +
+                        "'${handler.subFamily.simpleName}': split them"
+                }
+            }
+        }
+
+    private val subResolveCache = mutableMapOf<KClass<*>, MateSubscriptionHandler<Message, *>>()
+
+    /** Активные подписки: данные Sub → job коллектора. */
+    private val activeSubs = mutableMapOf<Sub, Job>()
+
     init {
-        // UNDISPATCHED: init-эффекты диспатчатся до первого Message на
-        // любом диспатчере; дальше цикл честно suspend'ится на mailbox.
+        // UNDISPATCHED: initial-дифф подписок (от initState) и
+        // init-эффекты отрабатывают до первого Message на любом
+        // диспатчере; дальше цикл честно suspend'ится на mailbox.
         coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            diffSubscriptions(initState)
             initEffects.forEach { dispatchEffect(it) }
             for (message in mailbox) {
                 processMessage(message)
@@ -99,9 +122,75 @@ public class Mate<State, Message, E : Effect>(
             val (newState, effects) = reduce(before, message)
             _state.value = newState
             notifyObservers { onReduced(message, before, newState, effects) }
+            // Порядок итерации зафиксирован контрактом:
+            // reduce → state → ДИФФ ПОДПИСОК → эффекты.
+            diffSubscriptions(newState)
             effects.forEach { dispatchEffect(it) }
         } catch (error: Throwable) {
             failPolicy.onError(MateError.MessageFailed(message, error))
+        }
+    }
+
+    /**
+     * Elm-семантика Sub: желаемый набор выводится из State; новые
+     * подписки стартуют, исчезнувшие гасятся. Идентичность — equality
+     * данных Sub: равная подписка НЕ рестартует.
+     */
+    private fun diffSubscriptions(state: State) {
+        val declared = subscriptions ?: return
+        val desired = declared(state)
+
+        val toStop = activeSubs.keys.filter { it !in desired }
+        toStop.forEach { sub ->
+            activeSubs.remove(sub)?.cancel()
+            notifyObservers { onSubscriptionStopped(sub) }
+        }
+
+        desired.forEach { sub ->
+            if (sub in activeSubs) return@forEach
+            val handler = resolveSubHandler(sub) ?: return@forEach
+            notifyObservers { onSubscriptionStarted(sub) }
+            activeSubs[sub] =
+                coroutineScope.launch {
+                    try {
+                        @Suppress("UNCHECKED_CAST")
+                        (handler as MateSubscriptionHandler<Message, Sub>)
+                            .flow(sub)
+                            .collect { message -> accept(message) }
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (error: Throwable) {
+                        notifyObservers { onSubscriptionError(sub, error) }
+                        failPolicy.onError(MateError.SubscriptionFailed(sub, error))
+                    }
+                }
+        }
+    }
+
+    private fun resolveSubHandler(sub: Sub): MateSubscriptionHandler<Message, *>? {
+        val subClass = sub::class
+        subResolveCache[subClass]?.let { return it }
+
+        val matches = subRegistry.entries.filter { (family, _) -> family.isInstance(sub) }
+        return when (matches.size) {
+            1 -> matches.single().value.also { subResolveCache[subClass] = it }
+            0 -> {
+                failPolicy.onError(MateError.OrphanSubscription(sub))
+                null
+            }
+            else -> {
+                failPolicy.onError(
+                    MateError.AmbiguousSubscription(
+                        sub = sub,
+                        families =
+                            matches.map {
+                                @Suppress("UNCHECKED_CAST")
+                                it.key as KClass<out Sub>
+                            },
+                    ),
+                )
+                null
+            }
         }
     }
 
@@ -164,5 +253,7 @@ public class Mate<State, Message, E : Effect>(
 
     public fun dispose() {
         flowHandlers.forEach { it.unsubscribe() }
+        activeSubs.values.forEach { it.cancel() }
+        activeSubs.clear()
     }
 }

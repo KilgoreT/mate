@@ -35,6 +35,23 @@ public sealed interface MateError {
     public data class MessageRejected(
         val message: Any?,
     ) : MateError
+
+    /** Поток подписки упал необработанным исключением; подписка погашена. */
+    public data class SubscriptionFailed(
+        val sub: Sub,
+        val cause: Throwable,
+    ) : MateError
+
+    /** Подписка-«сирота»: её семейство не заявлено ни одним handler'ом. */
+    public data class OrphanSubscription(
+        val sub: Sub,
+    ) : MateError
+
+    /** Подписка матчится на НЕСКОЛЬКО семейств — запрещено (раздели). */
+    public data class AmbiguousSubscription(
+        val sub: Sub,
+        val families: List<KClass<out Sub>>,
+    ) : MateError
 }
 
 /**
