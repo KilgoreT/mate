@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 rootProject.name = "mate"
 
 include(":mate-core")
+include(":mate-test")
