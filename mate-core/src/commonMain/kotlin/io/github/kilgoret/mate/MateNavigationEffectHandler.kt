@@ -1,8 +1,14 @@
 package io.github.kilgoret.mate
 
+import kotlin.reflect.KClass
+
 /**
- * Базовый handler навигационных эффектов: [NavigationEffect.Back]
+ * Базовый handler навигационного семейства: [NavigationEffect.Back]
  * обрабатывает сам, остальное делегирует в [onScreenEffect].
+ *
+ * Декларирует БАЗОВОЕ семейство [NavigationEffect] — экранные
+ * nav-эффекты остаются подгруппами-интерфейсами внутри него (подгруппы
+ * легальны; запрещена лишь family-декларация двух уровней).
  *
  * Roadmap v1 (mate-navigation): единый shared-инстанс на приложение,
  * гейт готовности + FIFO-очередь отложенной навигации, интерпретация
@@ -10,10 +16,10 @@ package io.github.kilgoret.mate
  */
 public abstract class MateNavigationEffectHandler<Msg>(
     protected val navigator: Navigator,
-) : MateTypedEffectHandler<Msg, NavigationEffect>() {
-    final override fun filter(effect: Effect): NavigationEffect? = effect as? NavigationEffect
+) : MateEffectHandler<Msg, NavigationEffect> {
+    final override val effectFamily: KClass<NavigationEffect> = NavigationEffect::class
 
-    final override suspend fun onEffect(
+    final override suspend fun runEffect(
         effect: NavigationEffect,
         consumer: (Msg) -> Unit,
     ) {

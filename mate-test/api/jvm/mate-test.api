@@ -11,6 +11,10 @@ public final class io/github/kilgoret/mate/test/MateTestHelperKt {
 	public static final fun testScenario (Lio/github/kilgoret/mate/MateReducer;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/util/List;
 }
 
+public final class io/github/kilgoret/mate/test/RunMateTestKt {
+	public static final fun runMateTest (Lkotlin/jvm/functions/Function3;)V
+}
+
 public final class io/github/kilgoret/mate/test/StateBuilder {
 	public fun <init> (Ljava/lang/Object;)V
 	public final fun build ()Ljava/lang/Object;

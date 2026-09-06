@@ -1,20 +1,99 @@
 public abstract interface class io/github/kilgoret/mate/Effect {
 }
 
-public final class io/github/kilgoret/mate/Mate : io/github/kilgoret/mate/MateEffectHandler, io/github/kilgoret/mate/MateReducer, io/github/kilgoret/mate/MateStateHolder {
-	public fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/Set;Lkotlinx/coroutines/CoroutineScope;)V
+public final class io/github/kilgoret/mate/Mate : io/github/kilgoret/mate/MateReducer, io/github/kilgoret/mate/MateStateHolder {
+	public fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;)V
+	public synthetic fun <init> (Ljava/lang/Object;Lio/github/kilgoret/mate/MateReducer;Ljava/util/Set;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lio/github/kilgoret/mate/MateFailPolicy;Lkotlinx/coroutines/CoroutineScope;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun accept (Ljava/lang/Object;)V
 	public final fun dispose ()V
 	public fun getState ()Lkotlinx/coroutines/flow/StateFlow;
 	public fun reduce (Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;
-	public fun runEffect (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract interface class io/github/kilgoret/mate/MateEffectHandler {
-	public abstract fun runEffect (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getEffectFamily ()Lkotlin/reflect/KClass;
+	public abstract fun runEffect (Lio/github/kilgoret/mate/Effect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract interface class io/github/kilgoret/mate/MateFlowHandler : io/github/kilgoret/mate/MateEffectHandler {
+public abstract interface class io/github/kilgoret/mate/MateError {
+}
+
+public final class io/github/kilgoret/mate/MateError$AmbiguousEffect : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;Ljava/util/List;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;Ljava/util/List;)Lio/github/kilgoret/mate/MateError$AmbiguousEffect;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$AmbiguousEffect;Lio/github/kilgoret/mate/Effect;Ljava/util/List;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$AmbiguousEffect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public final fun getFamilies ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$EffectFailed : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;)Lio/github/kilgoret/mate/MateError$EffectFailed;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$EffectFailed;Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$EffectFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Ljava/lang/Throwable;
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$MessageFailed : io/github/kilgoret/mate/MateError {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Throwable;)Lio/github/kilgoret/mate/MateError$MessageFailed;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$MessageFailed;Ljava/lang/Object;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$MessageFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Ljava/lang/Throwable;
+	public final fun getMessage ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$MessageRejected : io/github/kilgoret/mate/MateError {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lio/github/kilgoret/mate/MateError$MessageRejected;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$MessageRejected;Ljava/lang/Object;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$MessageRejected;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateError$OrphanEffect : io/github/kilgoret/mate/MateError {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;)Lio/github/kilgoret/mate/MateError$OrphanEffect;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/MateError$OrphanEffect;Lio/github/kilgoret/mate/Effect;ILjava/lang/Object;)Lio/github/kilgoret/mate/MateError$OrphanEffect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/MateException : java/lang/IllegalStateException {
+	public fun <init> (Lio/github/kilgoret/mate/MateError;)V
+	public final fun getError ()Lio/github/kilgoret/mate/MateError;
+}
+
+public abstract interface class io/github/kilgoret/mate/MateFailPolicy {
+	public static final field Companion Lio/github/kilgoret/mate/MateFailPolicy$Companion;
+	public abstract fun onError (Lio/github/kilgoret/mate/MateError;)V
+}
+
+public final class io/github/kilgoret/mate/MateFailPolicy$Companion {
+	public final fun getStrict ()Lio/github/kilgoret/mate/MateFailPolicy;
+}
+
+public abstract interface class io/github/kilgoret/mate/MateFlowHandler {
 	public abstract fun getJob ()Lkotlinx/coroutines/Job;
 	public abstract fun setJob (Lkotlinx/coroutines/Job;)V
 	public abstract fun subscribe (Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;)V
@@ -25,14 +104,31 @@ public final class io/github/kilgoret/mate/MateFlowHandler$DefaultImpls {
 	public static fun unsubscribe (Lio/github/kilgoret/mate/MateFlowHandler;)V
 }
 
-public abstract class io/github/kilgoret/mate/MateNavigationEffectHandler : io/github/kilgoret/mate/MateTypedEffectHandler {
+public abstract class io/github/kilgoret/mate/MateNavigationEffectHandler : io/github/kilgoret/mate/MateEffectHandler {
 	public fun <init> (Lio/github/kilgoret/mate/Navigator;)V
-	public synthetic fun filter (Lio/github/kilgoret/mate/Effect;)Lio/github/kilgoret/mate/Effect;
-	protected final fun filter (Lio/github/kilgoret/mate/Effect;)Lio/github/kilgoret/mate/NavigationEffect;
+	public final fun getEffectFamily ()Lkotlin/reflect/KClass;
 	protected final fun getNavigator ()Lio/github/kilgoret/mate/Navigator;
-	public synthetic fun onEffect (Lio/github/kilgoret/mate/Effect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	protected final fun onEffect (Lio/github/kilgoret/mate/NavigationEffect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected abstract fun onScreenEffect (Lio/github/kilgoret/mate/NavigationEffect;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun runEffect (Lio/github/kilgoret/mate/Effect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun runEffect (Lio/github/kilgoret/mate/NavigationEffect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class io/github/kilgoret/mate/MateObserver {
+	public abstract fun onCausedMessage (Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun onEffectFailed (Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public abstract fun onEffectFinished-HG0u8IE (Ljava/lang/Object;J)V
+	public abstract fun onEffectStarted (Ljava/lang/Object;)V
+	public abstract fun onMessage (Ljava/lang/Object;Ljava/lang/Object;)V
+	public abstract fun onReduced (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
+}
+
+public final class io/github/kilgoret/mate/MateObserver$DefaultImpls {
+	public static fun onCausedMessage (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Object;)V
+	public static fun onEffectFailed (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public static fun onEffectFinished-HG0u8IE (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;J)V
+	public static fun onEffectStarted (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;)V
+	public static fun onMessage (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Object;)V
+	public static fun onReduced (Lio/github/kilgoret/mate/MateObserver;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
 }
 
 public abstract interface class io/github/kilgoret/mate/MateReducer {
@@ -47,14 +143,6 @@ public final class io/github/kilgoret/mate/MateReducerKt {
 public abstract interface class io/github/kilgoret/mate/MateStateHolder {
 	public abstract fun accept (Ljava/lang/Object;)V
 	public abstract fun getState ()Lkotlinx/coroutines/flow/StateFlow;
-}
-
-public abstract class io/github/kilgoret/mate/MateTypedEffectHandler : io/github/kilgoret/mate/MateEffectHandler {
-	public fun <init> ()V
-	protected abstract fun filter (Lio/github/kilgoret/mate/Effect;)Lio/github/kilgoret/mate/Effect;
-	protected abstract fun onEffect (Lio/github/kilgoret/mate/Effect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun runEffect (Lio/github/kilgoret/mate/Effect;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public synthetic fun runEffect (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract interface class io/github/kilgoret/mate/NavigationEffect : io/github/kilgoret/mate/Effect {

@@ -9,13 +9,11 @@ class NavigationEffectHandlerTest {
 
     private data class OpenThing(val id: Long) : NavigationEffect
 
-    private data class OtherFamily(val tag: String) : Effect
-
     private class RecordingNavigator : Navigator {
-        val backCalls = mutableListOf<Unit>()
+        var backCalls: Int = 0
 
         override fun back() {
-            backCalls += Unit
+            backCalls++
         }
     }
 
@@ -28,6 +26,12 @@ class NavigationEffectHandlerTest {
     }
 
     @Test
+    fun declaresBaseNavigationFamily() {
+        val handler = Handler(RecordingNavigator())
+        assertEquals(NavigationEffect::class, handler.effectFamily)
+    }
+
+    @Test
     fun backGoesToNavigator() =
         runTest {
             val navigator = RecordingNavigator()
@@ -35,7 +39,7 @@ class NavigationEffectHandlerTest {
 
             handler.runEffect(NavigationEffect.Back) {}
 
-            assertEquals(1, navigator.backCalls.size)
+            assertEquals(1, navigator.backCalls)
             assertEquals(emptyList(), handler.screenEffects)
         }
 
@@ -48,18 +52,6 @@ class NavigationEffectHandlerTest {
             handler.runEffect(OpenThing(42)) {}
 
             assertEquals(listOf<NavigationEffect>(OpenThing(42)), handler.screenEffects)
-            assertEquals(0, navigator.backCalls.size)
-        }
-
-    @Test
-    fun foreignFamilyIsSilentlyIgnored() =
-        runTest {
-            val navigator = RecordingNavigator()
-            val handler = Handler(navigator)
-
-            handler.runEffect(OtherFamily("net")) {}
-
-            assertEquals(emptyList(), handler.screenEffects)
-            assertEquals(0, navigator.backCalls.size)
+            assertEquals(0, navigator.backCalls)
         }
 }

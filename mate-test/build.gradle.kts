@@ -17,9 +17,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":mate-core"))
-            // kotlin-test в MAIN сорсете — норма для тест-библиотеки:
-            // её потребители подключают mate-test в testImplementation.
+            // kotlin-test/coroutines-test в MAIN сорсете — норма для
+            // тест-библиотеки: потребители подключают mate-test в
+            // testImplementation.
             implementation(kotlin("test"))
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

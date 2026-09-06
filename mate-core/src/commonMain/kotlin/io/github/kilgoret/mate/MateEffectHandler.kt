@@ -1,13 +1,32 @@
 package io.github.kilgoret.mate
 
+import kotlin.reflect.KClass
+
 /**
- * Исполнитель эффектов. Runtime вызывает [runEffect] для каждого
- * эффекта; результат исполнения возвращается в цикл НОВЫМ Message
- * через [consumer] — колбэков в обход цикла не существует.
+ * Исполнитель СЕМЕЙСТВА эффектов. Handler вслух декларирует семейство
+ * ([effectFamily]) — раннер строит табличку «семейство → исполнитель»
+ * и доставляет каждый эффект РОВНО одному handler'у.
+ *
+ * Правила роутинга (громкие, см. [MateError]):
+ * - два handler'а на одно семейство — fail при создании раннера;
+ * - эффект без исполнителя — fail при диспатче (сирота);
+ * - эффект, матчащийся на два семейства, — fail при диспатче
+ *   (двойная принадлежность запрещена: эффект живёт ровно в одном
+ *   семействе, вложенные family-декларации запрещены).
+ *
+ * Маршрутизация тупая — по типу; вся «умность» (кэш или сеть, ретраи)
+ * живёт ВНУТРИ исполнителя. Расширение (лог, метрики) — декоратором
+ * handler'а, не вторым handler'ом.
+ *
+ * Результат исполнения возвращается в цикл НОВЫМ Message через
+ * [runEffect]'s consumer — колбэков в обход цикла не существует.
  */
-public interface MateEffectHandler<Message, out Effect> {
+public interface MateEffectHandler<Message, E : Effect> {
+    /** Семейство, которое этот handler исполняет. */
+    public val effectFamily: KClass<E>
+
     public suspend fun runEffect(
-        effect: @UnsafeVariance Effect,
+        effect: E,
         consumer: (Message) -> Unit,
     )
 }
