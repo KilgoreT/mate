@@ -22,3 +22,4 @@ rootProject.name = "mate"
 include(":mate-core")
 include(":mate-navigation")
 include(":mate-test")
+include(":mate-app-test")

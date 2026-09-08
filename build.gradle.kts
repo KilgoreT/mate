@@ -22,6 +22,7 @@ dependencies {
     kover(project(":mate-core"))
     kover(project(":mate-navigation"))
     kover(project(":mate-test"))
+    kover(project(":mate-app-test"))
 }
 
 kover {

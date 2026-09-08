@@ -1,0 +1,230 @@
+public final class io/github/kilgoret/mate/apptest/AppHarness {
+	public final fun getCurrentNode ()Lio/github/kilgoret/mate/apptest/ScreenNode;
+	public final fun getNavigationHandler ()Lio/github/kilgoret/mate/navigation/MateNavigationHandler;
+	public final fun getRecording ()Lio/github/kilgoret/mate/apptest/RecordingObserver;
+	public final fun getScreens ()Ljava/util/List;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessContext {
+	public final fun getNavigationHandler ()Lio/github/kilgoret/mate/MateEffectHandler;
+	public final fun getObserver ()Lio/github/kilgoret/mate/MateObserver;
+	public final fun getScope ()Lkotlinx/coroutines/CoroutineScope;
+}
+
+public abstract interface class io/github/kilgoret/mate/apptest/HarnessEvent {
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$CausedMessage : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;Ljava/lang/Object;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;Ljava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$CausedMessage;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$CausedMessage;Lio/github/kilgoret/mate/Effect;Ljava/lang/Object;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$CausedMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/Object;
+	public final fun getParent ()Lio/github/kilgoret/mate/Effect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$EffectFailed : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFailed;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFailed;Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFailed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public final fun getError ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$EffectFinished : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public synthetic fun <init> (Lio/github/kilgoret/mate/Effect;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun component2-UwyO8pc ()J
+	public final fun copy-HG0u8IE (Lio/github/kilgoret/mate/Effect;J)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFinished;
+	public static synthetic fun copy-HG0u8IE$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFinished;Lio/github/kilgoret/mate/Effect;JILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectFinished;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDuration-UwyO8pc ()J
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$EffectStarted : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Effect;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Effect;
+	public final fun copy (Lio/github/kilgoret/mate/Effect;)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectStarted;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectStarted;Lio/github/kilgoret/mate/Effect;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$EffectStarted;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEffect ()Lio/github/kilgoret/mate/Effect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$MessageReceived : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$MessageReceived;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$MessageReceived;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$MessageReceived;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/Object;
+	public final fun getStateBefore ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$Reduced : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Object;
+	public final fun component4 ()Ljava/util/Set;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)Lio/github/kilgoret/mate/apptest/HarnessEvent$Reduced;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$Reduced;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$Reduced;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAfter ()Ljava/lang/Object;
+	public final fun getBefore ()Ljava/lang/Object;
+	public final fun getEffects ()Ljava/util/Set;
+	public final fun getMessage ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$ScreenPopped : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/navigation/Screen;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/navigation/Screen;
+	public final fun copy (Lio/github/kilgoret/mate/navigation/Screen;)Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPopped;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPopped;Lio/github/kilgoret/mate/navigation/Screen;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPopped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScreen ()Lio/github/kilgoret/mate/navigation/Screen;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$ScreenPushed : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/navigation/Screen;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/navigation/Screen;
+	public final fun copy (Lio/github/kilgoret/mate/navigation/Screen;)Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPushed;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPushed;Lio/github/kilgoret/mate/navigation/Screen;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$ScreenPushed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScreen ()Lio/github/kilgoret/mate/navigation/Screen;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionError : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun component2 ()Ljava/lang/Throwable;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionError;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionError;Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getError ()Ljava/lang/Throwable;
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStarted : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStarted;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStarted;Lio/github/kilgoret/mate/Sub;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStarted;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStopped : io/github/kilgoret/mate/apptest/HarnessEvent {
+	public fun <init> (Lio/github/kilgoret/mate/Sub;)V
+	public final fun component1 ()Lio/github/kilgoret/mate/Sub;
+	public final fun copy (Lio/github/kilgoret/mate/Sub;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStopped;
+	public static synthetic fun copy$default (Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStopped;Lio/github/kilgoret/mate/Sub;ILjava/lang/Object;)Lio/github/kilgoret/mate/apptest/HarnessEvent$SubscriptionStopped;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSub ()Lio/github/kilgoret/mate/Sub;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/github/kilgoret/mate/apptest/NodeFactory {
+	public abstract fun create (Lio/github/kilgoret/mate/navigation/Screen;Lio/github/kilgoret/mate/apptest/HarnessContext;)Lio/github/kilgoret/mate/apptest/ScreenNode;
+}
+
+public final class io/github/kilgoret/mate/apptest/RecordingObserver : io/github/kilgoret/mate/MateObserver {
+	public final fun getEvents ()Ljava/util/List;
+	public fun onCausedMessage (Lio/github/kilgoret/mate/Effect;Ljava/lang/Object;)V
+	public synthetic fun onCausedMessage (Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun onEffectFailed (Lio/github/kilgoret/mate/Effect;Ljava/lang/Throwable;)V
+	public synthetic fun onEffectFailed (Ljava/lang/Object;Ljava/lang/Throwable;)V
+	public fun onEffectFinished-HG0u8IE (Lio/github/kilgoret/mate/Effect;J)V
+	public synthetic fun onEffectFinished-HG0u8IE (Ljava/lang/Object;J)V
+	public fun onEffectStarted (Lio/github/kilgoret/mate/Effect;)V
+	public synthetic fun onEffectStarted (Ljava/lang/Object;)V
+	public fun onMessage (Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun onReduced (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V
+	public fun onSubscriptionError (Lio/github/kilgoret/mate/Sub;Ljava/lang/Throwable;)V
+	public fun onSubscriptionStarted (Lio/github/kilgoret/mate/Sub;)V
+	public fun onSubscriptionStopped (Lio/github/kilgoret/mate/Sub;)V
+	public final fun renderTrace ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/RunnerSlot {
+	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;Lio/github/kilgoret/mate/MateStateHolder;)V
+	public final fun getHolder ()Lio/github/kilgoret/mate/MateStateHolder;
+	public final fun getMessageFamily ()Lkotlin/reflect/KClass;
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class io/github/kilgoret/mate/apptest/ScenarioScope {
+	public final fun advanceTimeBy-LRDsOJo (J)V
+	public final fun awaitIdle ()V
+	public final fun back ()V
+	public final fun currentStates ()Ljava/util/Map;
+	public final fun expectEffect (Lio/github/kilgoret/mate/Effect;)V
+	public final fun expectNoEffect (Lio/github/kilgoret/mate/Effect;)V
+	public final fun expectScreen (Lio/github/kilgoret/mate/navigation/Screen;)V
+	public final fun failWithTrace (Ljava/lang/String;)Ljava/lang/Void;
+	public final fun getRecording ()Lio/github/kilgoret/mate/apptest/RecordingObserver;
+	public final fun getScreens ()Ljava/util/List;
+	public final fun launch (Lio/github/kilgoret/mate/navigation/Screen;)V
+	public final fun runnerState (Ljava/lang/String;)Ljava/lang/Object;
+	public final fun send (Ljava/lang/Object;)V
+	public final fun withTrace (Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class io/github/kilgoret/mate/apptest/ScenarioScopeKt {
+	public static final fun runAppScenario (Lio/github/kilgoret/mate/apptest/ScreenRegistry;Lio/github/kilgoret/mate/navigation/NavGraph;Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class io/github/kilgoret/mate/apptest/ScreenNode {
+	public fun <init> (Lio/github/kilgoret/mate/navigation/Screen;Ljava/util/List;)V
+	public final fun getRunners ()Ljava/util/List;
+	public final fun getScreen ()Lio/github/kilgoret/mate/navigation/Screen;
+	public final fun runner (Ljava/lang/String;)Lio/github/kilgoret/mate/apptest/RunnerSlot;
+}
+
+public final class io/github/kilgoret/mate/apptest/ScreenRegistry {
+}
+
+public final class io/github/kilgoret/mate/apptest/ScreenRegistryBuilder {
+	public final fun getFactories ()Ljava/util/Map;
+}
+
+public final class io/github/kilgoret/mate/apptest/ScreenRegistryKt {
+	public static final fun screenRegistry (Lkotlin/jvm/functions/Function1;)Lio/github/kilgoret/mate/apptest/ScreenRegistry;
+}
+
+public final class io/github/kilgoret/mate/apptest/StubFlow : kotlinx/coroutines/flow/Flow {
+	public fun collect (Lkotlinx/coroutines/flow/FlowCollector;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun emit (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/github/kilgoret/mate/apptest/StubFlowKt {
+	public static final fun stubFlow ()Lio/github/kilgoret/mate/apptest/StubFlow;
+}
+

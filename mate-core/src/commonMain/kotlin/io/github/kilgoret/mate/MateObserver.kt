@@ -9,8 +9,13 @@ import kotlin.time.Duration
  *
  * Read-only by design: наблюдатель не вмешивается в цикл; исключение
  * в наблюдателе не убивает раннер (глотается циклом).
+ *
+ * Все три типа контравариантны: наблюдатель только ПОЛУЧАЕТ значения,
+ * поэтому один общий наблюдатель (`MateObserver<Any?, Any?, Effect>`)
+ * вешается на раннер любого экрана — так тестовый харнес пишет единую
+ * ленту событий всех раннеров приложения.
  */
-public interface MateObserver<State, Message, Effect> {
+public interface MateObserver<in State, in Message, in Effect> {
     /** Message взят из mailbox, до reduce. */
     public fun onMessage(
         message: Message,
