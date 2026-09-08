@@ -20,6 +20,7 @@ subprojects {
 
 dependencies {
     kover(project(":mate-core"))
+    kover(project(":mate-navigation"))
     kover(project(":mate-test"))
 }
 

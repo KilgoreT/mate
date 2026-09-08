@@ -1,13 +1,9 @@
 package io.github.kilgoret.mate
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MateRunnerTest {
@@ -63,7 +59,6 @@ class MateRunnerTest {
         scope: CoroutineScope,
         observers: List<MateObserver<S, Msg, Effect>> = emptyList(),
         failPolicy: MateFailPolicy = MateFailPolicy.Strict,
-        flowHandlers: List<MateFlowHandler<Msg>> = emptyList(),
         initEffects: Set<Effect> = emptySet(),
     ): Mate<S, Msg, Effect> =
         Mate(
@@ -71,7 +66,6 @@ class MateRunnerTest {
             reducer = Reducer(),
             initEffects = initEffects,
             effectHandlers = listOf(FxHandler()),
-            flowHandlers = flowHandlers,
             observers = observers,
             failPolicy = failPolicy,
             coroutineScope = scope,
@@ -200,34 +194,5 @@ class MateRunnerTest {
                 ),
             )
             assertTrue(observer.events.any { it == "fx-done:${Fx.Echo("add-9")}" })
-        }
-
-    @Test
-    fun flowHandlerSubscribesOnStartAndUnsubscribesOnDispose() =
-        runMateTest { mateScope ->
-            val source = MutableSharedFlow<String>()
-            val flowHandler =
-                object : MateFlowHandler<Msg> {
-                    override var job: Job? = null
-
-                    override fun subscribe(
-                        scope: CoroutineScope,
-                        send: (Msg) -> Unit,
-                    ) {
-                        job =
-                            scope.launch {
-                                source.collect { send(Msg.Echoed(it)) }
-                            }
-                    }
-                }
-            val mate = buildMate(mateScope, flowHandlers = listOf(flowHandler))
-
-            testScheduler.advanceUntilIdle()
-            source.emit("live")
-            testScheduler.advanceUntilIdle()
-            assertEquals(listOf("live"), mate.state.value.echoed)
-
-            mate.dispose()
-            assertNull(flowHandler.job)
         }
 }

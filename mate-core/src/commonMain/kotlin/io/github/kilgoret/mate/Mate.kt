@@ -47,7 +47,6 @@ public class Mate<State, Message, E : Effect>(
     reducer: MateReducer<State, Message, E>,
     initEffects: Set<E>,
     effectHandlers: List<MateEffectHandler<Message, *>>,
-    private val flowHandlers: List<MateFlowHandler<Message>> = emptyList(),
     private val subscriptions: ((State) -> Set<Sub>)? = null,
     subscriptionHandlers: List<MateSubscriptionHandler<Message, *>> = emptyList(),
     private val observers: List<MateObserver<State, Message, E>> = emptyList(),
@@ -105,7 +104,6 @@ public class Mate<State, Message, E : Effect>(
                 processMessage(message)
             }
         }
-        flowHandlers.forEach { it.subscribe(coroutineScope, ::accept) }
     }
 
     override fun accept(message: Message) {
@@ -252,7 +250,6 @@ public class Mate<State, Message, E : Effect>(
     }
 
     public fun dispose() {
-        flowHandlers.forEach { it.unsubscribe() }
         activeSubs.values.forEach { it.cancel() }
         activeSubs.clear()
     }

@@ -20,8 +20,13 @@ import kotlin.reflect.KClass
  *
  * Результат исполнения возвращается в цикл НОВЫМ Message через
  * [runEffect]'s consumer — колбэков в обход цикла не существует.
+ *
+ * [Message] ковариантен: handler, не шлющий сообщений вовсе
+ * (`MateEffectHandler<Nothing, …>`), совместим с раннером любого
+ * Message-типа — так один shared-исполнитель (например, навигация)
+ * встаёт в сборку каждого экрана приложения.
  */
-public interface MateEffectHandler<Message, E : Effect> {
+public interface MateEffectHandler<out Message, E : Effect> {
     /** Семейство, которое этот handler исполняет. */
     public val effectFamily: KClass<E>
 
