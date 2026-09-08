@@ -2,7 +2,7 @@ package io.github.kilgoret.mate
 
 /**
  * Результат одного шага update: новое состояние + МНОЖЕСТВО различимых
- * намерений (см. [Effect], принцип П1).
+ * намерений (см. [Effect] — принцип различимых намерений).
  */
 public typealias ReducerResult<State, Effect> = Pair<State, Set<Effect>>
 
