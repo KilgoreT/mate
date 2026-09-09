@@ -204,6 +204,10 @@ public class Mate<State, Message, E : Effect>(
                     accept(message)
                 }
                 notifyObservers { onEffectFinished(effect, startMark.elapsedNow()) }
+            } catch (error: CancellationException) {
+                // Отмена scope (закрытие экрана) — не ошибка эффекта:
+                // без ложного EffectFailed в observer и политику.
+                throw error
             } catch (error: Throwable) {
                 notifyObservers { onEffectFailed(effect, error) }
                 failPolicy.onError(MateError.EffectFailed(effect, error))

@@ -1,6 +1,7 @@
 package io.github.kilgoret.mate
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -194,5 +195,41 @@ class MateRunnerTest {
                 ),
             )
             assertTrue(observer.events.any { it == "fx-done:${Fx.Echo("add-9")}" })
+        }
+
+    @Test
+    fun cancellingScopeWithInFlightEffectIsNotAnEffectFailure() =
+        runMateTest { mateScope ->
+            // Handler виснет: эмуляция долгого IO, оборванного закрытием экрана.
+            val hangingHandler =
+                object : MateEffectHandler<Msg, Fx> {
+                    override val effectFamily: KClass<Fx> = Fx::class
+
+                    override suspend fun runEffect(
+                        effect: Fx,
+                        consumer: (Msg) -> Unit,
+                    ) {
+                        kotlinx.coroutines.delay(10_000)
+                    }
+                }
+            val observer = RecordingObserver<S, Msg, Effect>()
+            val mate =
+                Mate<S, Msg, Effect>(
+                    initState = S(0),
+                    reducer = Reducer(),
+                    initEffects = emptySet(),
+                    effectHandlers = listOf(hangingHandler),
+                    observers = listOf(observer),
+                    coroutineScope = mateScope,
+                )
+
+            mate.accept(Msg.Add(1))
+            testScheduler.runCurrent() // эффект ушёл и повис на delay
+
+            mateScope.cancel() // «экран закрылся»
+            testScheduler.advanceUntilIdle()
+
+            // Отмена — не ошибка: ни fx-fail в ленте, ни краша политики.
+            assertTrue(observer.events.none { it.startsWith("fx-fail:") })
         }
 }
