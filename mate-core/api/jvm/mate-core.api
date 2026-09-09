@@ -189,6 +189,10 @@ public final class io/github/kilgoret/mate/ReducerChainKt {
 	public static final fun withEffect (Lkotlin/Pair;Ljava/lang/Object;)Lkotlin/Pair;
 }
 
+public final class io/github/kilgoret/mate/RunMateCatchingKt {
+	public static final fun runMateCatching (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
 public abstract interface class io/github/kilgoret/mate/Sub {
 }
 
