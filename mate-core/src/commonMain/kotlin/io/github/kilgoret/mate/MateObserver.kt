@@ -45,21 +45,46 @@ public interface MateObserver<in State, in Message, in Effect> {
         error: Throwable,
     ): Unit = Unit
 
-    /** Каузальность: [message] рождён исполнением [parent]. */
+    /**
+     * Исполнение эффекта упало, но эффект — [RecoverableEffect]:
+     * вместо политики в цикл отправлен [message] из его onFail.
+     * Следом приходит [onCausedMessage] с той же парой — каузальный
+     * граф recovery не рвёт.
+     */
+    public fun onEffectRecovered(
+        effect: Effect,
+        error: Throwable,
+        message: Message,
+    ): Unit = Unit
+
+    /**
+     * Причинная связь: [parent] — эффект, при исполнении которого
+     * handler вернул [message] в цикл через consumer.
+     */
     public fun onCausedMessage(
         parent: Effect,
         message: Message,
     ): Unit = Unit
 
-    /** Дифф включил подписку (появилась в subscriptions(state)). */
-    public fun onSubscriptionStarted(sub: Sub): Unit = Unit
+    /**
+     * Подписка включена. После каждого reduce (и один раз при
+     * создании раннера, от initState) раннер сравнивает желаемый
+     * набор `subscriptions(state)` с активным: [sub] в новом
+     * состоянии появилась — раннер запустил её поток и зовёт этот
+     * хук.
+     */
+    public fun onSubscriptionStarted(sub: Subscription): Unit = Unit
 
-    /** Дифф погасил подписку (исчезла из subscriptions(state)). */
-    public fun onSubscriptionStopped(sub: Sub): Unit = Unit
+    /**
+     * Подписка погашена: на том же сравнении после reduce [sub] из
+     * желаемого набора исчезла — раннер отменил её поток и зовёт
+     * этот хук.
+     */
+    public fun onSubscriptionStopped(sub: Subscription): Unit = Unit
 
     /** Поток подписки упал необработанным исключением. */
     public fun onSubscriptionError(
-        sub: Sub,
+        sub: Subscription,
         error: Throwable,
     ): Unit = Unit
 }

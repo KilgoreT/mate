@@ -2,7 +2,7 @@ package io.github.kilgoret.mate.apptest
 
 import io.github.kilgoret.mate.Effect
 import io.github.kilgoret.mate.MateObserver
-import io.github.kilgoret.mate.Sub
+import io.github.kilgoret.mate.Subscription
 import io.github.kilgoret.mate.navigation.Screen
 import kotlin.time.Duration
 
@@ -28,13 +28,19 @@ public sealed interface HarnessEvent {
 
     public data class EffectFailed(val effect: Effect, val error: Throwable) : HarnessEvent
 
+    public data class EffectRecovered(
+        val effect: Effect,
+        val error: Throwable,
+        val message: Any?,
+    ) : HarnessEvent
+
     public data class CausedMessage(val parent: Effect, val message: Any?) : HarnessEvent
 
-    public data class SubscriptionStarted(val sub: Sub) : HarnessEvent
+    public data class SubscriptionStarted(val sub: Subscription) : HarnessEvent
 
-    public data class SubscriptionStopped(val sub: Sub) : HarnessEvent
+    public data class SubscriptionStopped(val sub: Subscription) : HarnessEvent
 
-    public data class SubscriptionError(val sub: Sub, val error: Throwable) : HarnessEvent
+    public data class SubscriptionError(val sub: Subscription, val error: Throwable) : HarnessEvent
 
     public data class ScreenPushed(val screen: Screen) : HarnessEvent
 
@@ -95,6 +101,14 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
         _events += HarnessEvent.EffectFailed(effect, error)
     }
 
+    override fun onEffectRecovered(
+        effect: Effect,
+        error: Throwable,
+        message: Any?,
+    ) {
+        _events += HarnessEvent.EffectRecovered(effect, error, message)
+    }
+
     override fun onCausedMessage(
         parent: Effect,
         message: Any?,
@@ -102,16 +116,16 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
         _events += HarnessEvent.CausedMessage(parent, message)
     }
 
-    override fun onSubscriptionStarted(sub: Sub) {
+    override fun onSubscriptionStarted(sub: Subscription) {
         _events += HarnessEvent.SubscriptionStarted(sub)
     }
 
-    override fun onSubscriptionStopped(sub: Sub) {
+    override fun onSubscriptionStopped(sub: Subscription) {
         _events += HarnessEvent.SubscriptionStopped(sub)
     }
 
     override fun onSubscriptionError(
-        sub: Sub,
+        sub: Subscription,
         error: Throwable,
     ) {
         _events += HarnessEvent.SubscriptionError(sub, error)

@@ -10,15 +10,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class RunMateCatchingTest {
+class RunSuspendCatchingTest {
     @Test
     fun successIsWrapped() {
-        assertEquals(Result.success(42), runMateCatching { 42 })
+        assertEquals(Result.success(42), runSuspendCatching { 42 })
     }
 
     @Test
     fun failureIsWrapped() {
-        val result = runMateCatching { error("boom") }
+        val result = runSuspendCatching { error("boom") }
         assertTrue(result.isFailure)
         assertEquals("boom", result.exceptionOrNull()?.message)
     }
@@ -26,7 +26,7 @@ class RunMateCatchingTest {
     @Test
     fun cancellationIsRethrownNotWrapped() {
         assertFailsWith<CancellationException> {
-            runMateCatching { throw CancellationException("cancelled") }
+            runSuspendCatching { throw CancellationException("cancelled") }
         }
     }
 
@@ -39,7 +39,7 @@ class RunMateCatchingTest {
             coroutineScope {
                 val job =
                     launch {
-                        val result = runMateCatching { delay(10_000) }
+                        val result = runSuspendCatching { delay(10_000) }
                         wrappedAsFailure = result.isFailure
                     }
                 testScheduler.runCurrent()

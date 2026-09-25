@@ -122,6 +122,6 @@ public class AppHarness internal constructor(
 
     private fun RunnerSlot.accept(message: Any) {
         @Suppress("UNCHECKED_CAST")
-        (holder as io.github.kilgoret.mate.MateStateHolder<Any?, Any>).accept(message)
+        (holder as io.github.kilgoret.mate.MateStore<Any?, Any>).accept(message)
     }
 }

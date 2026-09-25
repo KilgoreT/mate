@@ -1,6 +1,6 @@
 package io.github.kilgoret.mate.apptest
 
-import io.github.kilgoret.mate.MateStateHolder
+import io.github.kilgoret.mate.MateStore
 import io.github.kilgoret.mate.navigation.Screen
 import kotlin.reflect.KClass
 
@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 public class RunnerSlot(
     public val name: String,
     public val messageFamily: KClass<*>,
-    public val holder: MateStateHolder<*, *>,
+    public val holder: MateStore<*, *>,
 )
 
 /**

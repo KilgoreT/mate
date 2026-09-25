@@ -38,29 +38,30 @@ public sealed interface MateError {
 
     /** Поток подписки упал необработанным исключением; подписка погашена. */
     public data class SubscriptionFailed(
-        val sub: Sub,
+        val sub: Subscription,
         val cause: Throwable,
     ) : MateError
 
     /** Подписка-«сирота»: её семейство не заявлено ни одним handler'ом. */
     public data class OrphanSubscription(
-        val sub: Sub,
+        val sub: Subscription,
     ) : MateError
 
     /** Подписка матчится на НЕСКОЛЬКО семейств — запрещено (раздели). */
     public data class AmbiguousSubscription(
-        val sub: Sub,
-        val families: List<KClass<out Sub>>,
+        val sub: Subscription,
+        val families: List<KClass<out Subscription>>,
     ) : MateError
 }
 
 /**
- * Политика реакции на [MateError] — параметр раннера (в common нет
- * BuildConfig, параметр — единственный KMP-валидный способ различить
- * debug/release).
+ * Политика реакции на [MateError] — параметр раннера: приложение
+ * задаёт поведение под своё окружение (debug — краш, release —
+ * лог или метрика).
  *
- * Контракт цикла: mailbox не умирает от исключений ПРИ НЕкидающей
- * политике. [Strict] сознательно кидает — «debug-краш».
+ * Ошибка уходит в политику, а не убивает цикл; остановить цикл может
+ * только исключение из самой политики. [Strict] бросает
+ * [MateException] на каждую ошибку — режим отладки.
  */
 public fun interface MateFailPolicy {
     public fun onError(error: MateError)

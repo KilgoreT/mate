@@ -40,6 +40,14 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
         events += "fx-fail:$effect:${error.message}"
     }
 
+    override fun onEffectRecovered(
+        effect: E,
+        error: Throwable,
+        message: Message,
+    ) {
+        events += "fx-recovered:$effect:${error.message}->$message"
+    }
+
     override fun onCausedMessage(
         parent: E,
         message: Message,
@@ -47,16 +55,16 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
         events += "caused:$parent->$message"
     }
 
-    override fun onSubscriptionStarted(sub: Sub) {
+    override fun onSubscriptionStarted(sub: Subscription) {
         events += "sub-start:$sub"
     }
 
-    override fun onSubscriptionStopped(sub: Sub) {
+    override fun onSubscriptionStopped(sub: Subscription) {
         events += "sub-stop:$sub"
     }
 
     override fun onSubscriptionError(
-        sub: Sub,
+        sub: Subscription,
         error: Throwable,
     ) {
         events += "sub-error:$sub:${error.message}"

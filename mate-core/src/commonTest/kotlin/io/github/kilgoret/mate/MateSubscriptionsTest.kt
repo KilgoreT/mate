@@ -26,11 +26,11 @@ class MateSubscriptionsTest {
         data class Emitted(val tag: String) : Msg
     }
 
-    private sealed interface WindowSub : Sub {
+    private sealed interface WindowSub : Subscription {
         data class Window(val id: Long, val limit: Int) : WindowSub
     }
 
-    private data object StraySub : Sub
+    private data object StraySub : Subscription
 
     private class Reducer : MateReducer<S, Msg, Effect> {
         override fun reduce(
@@ -46,14 +46,14 @@ class MateSubscriptionsTest {
     }
 
     /** Карта подписок: окно на каждый наблюдаемый id с текущим лимитом. */
-    private fun subscriptionsOf(state: S): Set<Sub> = state.watching.map { WindowSub.Window(it, state.limit) }.toSet()
+    private fun subscriptionsOf(state: S): Set<Subscription> = state.watching.map { WindowSub.Window(it, state.limit) }.toSet()
 
     private class WindowHandler(
         private val source: MutableSharedFlow<String>,
     ) : MateSubscriptionHandler<Msg, WindowSub> {
         val started = mutableListOf<WindowSub>()
 
-        override val subFamily: KClass<WindowSub> = WindowSub::class
+        override val subscriptionFamily: KClass<WindowSub> = WindowSub::class
 
         override fun flow(sub: WindowSub): Flow<Msg> {
             started += sub
@@ -182,7 +182,7 @@ class MateSubscriptionsTest {
             val observer = RecordingObserver<S, Msg, Effect>()
             val explosive =
                 object : MateSubscriptionHandler<Msg, WindowSub> {
-                    override val subFamily: KClass<WindowSub> = WindowSub::class
+                    override val subscriptionFamily: KClass<WindowSub> = WindowSub::class
 
                     override fun flow(sub: WindowSub): Flow<Msg> = flow { error("stream burst") }
                 }
@@ -199,6 +199,27 @@ class MateSubscriptionsTest {
 
             assertTrue(errors.single() is MateError.SubscriptionFailed)
             assertTrue(observer.events.any { it.startsWith("sub-error:") })
+        }
+
+    @Test
+    fun disposeStopsSubscriptionsAndNotifiesObserver() =
+        runMateTest { mateScope ->
+            val source = MutableSharedFlow<String>()
+            val handler = WindowHandler(source)
+            val observer = RecordingObserver<S, Msg, Effect>()
+            val mate = buildMate(mateScope, handler, observers = listOf(observer))
+
+            mate.accept(Msg.Watch(5))
+            testScheduler.advanceUntilIdle()
+            mate.dispose()
+            testScheduler.advanceUntilIdle()
+            source.emit("late")
+            testScheduler.advanceUntilIdle()
+
+            // Погашенная dispose'ом подписка эмиссий не доставляет,
+            // а её конец виден наблюдателю — трасса замкнута.
+            assertEquals(emptyList(), mate.state.value.received)
+            assertTrue(observer.events.contains("sub-stop:${WindowSub.Window(5, 1)}"))
         }
 
     @Test

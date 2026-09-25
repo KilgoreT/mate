@@ -2,7 +2,7 @@ package io.github.kilgoret.mate.apptest
 
 import io.github.kilgoret.mate.Effect
 import io.github.kilgoret.mate.Mate
-import io.github.kilgoret.mate.Sub
+import io.github.kilgoret.mate.Subscription
 import kotlinx.coroutines.flow.Flow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +36,7 @@ class SliceDiagTest {
                                             null
                                         } else {
                                             {
-                                                buildSet<Sub> {
+                                                buildSet<Subscription> {
                                                     if (live != null) add(CounterSub.Live)
                                                     if (ticker) add(CounterSub.Ticker)
                                                 }
@@ -129,7 +129,7 @@ class SliceDiagTest {
                                                             CounterMsg,
                                                             CounterSub,
                                                             > {
-                                                        override val subFamily = CounterSub::class
+                                                        override val subscriptionFamily = CounterSub::class
 
                                                         override fun flow(sub: CounterSub) = fusedTicker
                                                     },

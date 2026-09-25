@@ -7,7 +7,7 @@ import io.github.kilgoret.mate.MateReducer
 import io.github.kilgoret.mate.MateSubscriptionHandler
 import io.github.kilgoret.mate.NavigationEffect
 import io.github.kilgoret.mate.ReducerResult
-import io.github.kilgoret.mate.Sub
+import io.github.kilgoret.mate.Subscription
 import io.github.kilgoret.mate.navigation.NavGraph
 import io.github.kilgoret.mate.navigation.Screen
 import io.github.kilgoret.mate.navigation.navGraph
@@ -58,7 +58,7 @@ sealed interface CounterNav : NavigationEffect {
     data class OpenDetails(val id: Long) : CounterNav
 }
 
-sealed interface CounterSub : Sub {
+sealed interface CounterSub : Subscription {
     data object Live : CounterSub
 
     data object Ticker : CounterSub
@@ -108,7 +108,7 @@ class CounterEffectHandler(
 class CounterSubHandler(
     private val live: Flow<List<String>>,
 ) : MateSubscriptionHandler<CounterMsg, CounterSub> {
-    override val subFamily: KClass<CounterSub> = CounterSub::class
+    override val subscriptionFamily: KClass<CounterSub> = CounterSub::class
 
     override fun flow(sub: CounterSub): Flow<CounterMsg> =
         when (sub) {
