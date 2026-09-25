@@ -30,8 +30,5 @@ public interface MateEffectHandler<out Message, E : Effect> {
     /** Семейство, которое этот handler исполняет. */
     public val effectFamily: KClass<E>
 
-    public suspend fun runEffect(
-        effect: E,
-        consumer: (Message) -> Unit,
-    )
+    public suspend fun runEffect(effect: E, consumer: (Message) -> Unit)
 }

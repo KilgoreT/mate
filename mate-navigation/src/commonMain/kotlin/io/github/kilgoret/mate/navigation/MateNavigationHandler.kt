@@ -79,14 +79,10 @@ public class MateNavigationHandler(
 
     private var drainJob: Job? = null
 
-    override suspend fun runEffect(
-        effect: NavigationEffect,
-        consumer: (Nothing) -> Unit,
-    ) {
-        val commands =
-            checkNotNull(graph.resolve(effect)) {
-                "No navigation route for '${effect::class.simpleName}': add it to navGraph"
-            }
+    override suspend fun runEffect(effect: NavigationEffect, consumer: (Nothing) -> Unit) {
+        val commands = checkNotNull(graph.resolve(effect)) {
+            "No navigation route for '${effect::class.simpleName}': add it to navGraph"
+        }
         queue.trySend(
             Queued(
                 effect = effect,
@@ -104,20 +100,19 @@ public class MateNavigationHandler(
      */
     public fun attach(scope: CoroutineScope) {
         drainJob?.cancel()
-        drainJob =
-            scope.launch {
-                while (true) {
-                    val item = pending ?: queue.receive().also { pending = it }
-                    readiness.first { it }
-                    val stale = staleness?.let { item.enqueuedAt.elapsedNow() > it } == true
-                    if (stale) {
-                        onDropped?.invoke(item.effect)
-                    } else {
-                        item.commands.forEach(executor::execute)
-                    }
-                    pending = null
+        drainJob = scope.launch {
+            while (true) {
+                val item = pending ?: queue.receive().also { pending = it }
+                readiness.first { it }
+                val stale = staleness?.let { item.enqueuedAt.elapsedNow() > it } == true
+                if (stale) {
+                    onDropped?.invoke(item.effect)
+                } else {
+                    item.commands.forEach(executor::execute)
                 }
+                pending = null
             }
+        }
     }
 
     /** Остановить дренаж; очередь и её содержимое переживают detach. */

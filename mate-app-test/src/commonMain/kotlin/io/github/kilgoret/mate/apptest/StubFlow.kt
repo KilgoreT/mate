@@ -11,14 +11,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
  * Replay = 1: подписка, стартовавшая позже эмиссии, получает
  * последнее значение (семантика живого запроса к базе).
  */
-public class StubFlow<T> internal constructor(
-    private val source: MutableSharedFlow<T>,
-) : Flow<T> by source {
-    /** Эмитить значение всем активным (и будущим — replay) подписчикам. */
-    public suspend fun emit(value: T) {
-        source.emit(value)
+public class StubFlow<T> internal constructor(private val source: MutableSharedFlow<T>) :
+    Flow<T> by source {
+        /** Эмитить значение всем активным (и будущим — replay) подписчикам. */
+        public suspend fun emit(value: T) {
+            source.emit(value)
+        }
     }
-}
 
 /** Создать управляемый стаб-поток. */
 public fun <T> stubFlow(): StubFlow<T> = StubFlow(MutableSharedFlow(replay = 1))

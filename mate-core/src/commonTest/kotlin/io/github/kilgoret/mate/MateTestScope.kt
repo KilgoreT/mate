@@ -12,12 +12,11 @@ import kotlinx.coroutines.test.runTest
  * в отличие от backgroundScope, чьи задачи при активном теле теста не
  * исполняются) и гарантированно отменяется по концу теста.
  */
-internal fun runMateTest(block: suspend TestScope.(mateScope: CoroutineScope) -> Unit) =
-    runTest {
-        val mateScope = CoroutineScope(coroutineContext + Job())
-        try {
-            block(mateScope)
-        } finally {
-            mateScope.cancel()
-        }
+internal fun runMateTest(block: suspend TestScope.(mateScope: CoroutineScope) -> Unit) = runTest {
+    val mateScope = CoroutineScope(coroutineContext + Job())
+    try {
+        block(mateScope)
+    } finally {
+        mateScope.cancel()
     }
+}

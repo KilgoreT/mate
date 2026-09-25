@@ -36,7 +36,9 @@ public class NavGraph internal constructor(
         return scope.commands
     }
 
-    private fun resolveRoute(effect: NavigationEffect): (NavRouteScope.(NavigationEffect) -> Unit)? {
+    private fun resolveRoute(
+        effect: NavigationEffect,
+    ): (NavRouteScope.(NavigationEffect) -> Unit)? {
         val effectClass = effect::class
         resolveCache[effectClass]?.let { return it }
 
@@ -49,7 +51,10 @@ public class NavGraph internal constructor(
             "Navigation effect '${effectClass.simpleName}' matches several routes: " +
                 matches.joinToString { it.key.simpleName ?: "?" }
         }
-        return matches.singleOrNull()?.value.also { resolveCache[effectClass] = it }
+        return matches
+            .singleOrNull()
+            ?.value
+            .also { resolveCache[effectClass] = it }
     }
 }
 
@@ -85,11 +90,10 @@ public class NavGraphBuilder internal constructor() {
      * Повторная строка на тот же эффект — ошибка конфигурации.
      */
     public inline fun <reified E : NavigationEffect> on(noinline route: NavRouteScope.(E) -> Unit) {
-        val previous =
-            routes.put(E::class) { effect ->
-                @Suppress("UNCHECKED_CAST")
-                route(effect as E)
-            }
+        val previous = routes.put(E::class) { effect ->
+            @Suppress("UNCHECKED_CAST")
+            route(effect as E)
+        }
         require(previous == null) {
             "Navigation route for '${E::class.simpleName}' is declared twice: merge them"
         }
@@ -106,4 +110,9 @@ public class NavGraphBuilder internal constructor() {
  * }
  * ```
  */
-public fun navGraph(build: NavGraphBuilder.() -> Unit): NavGraph = NavGraph(NavGraphBuilder().apply(build).routes.toMap())
+public fun navGraph(build: NavGraphBuilder.() -> Unit): NavGraph = NavGraph(
+    NavGraphBuilder()
+        .apply(build)
+        .routes
+        .toMap(),
+)

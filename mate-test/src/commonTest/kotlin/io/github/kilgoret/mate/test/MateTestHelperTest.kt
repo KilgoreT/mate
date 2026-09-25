@@ -14,13 +14,10 @@ class MateTestHelperTest {
 
     private data class Inc(val amount: Int)
 
-    private val reducer =
-        object : MateReducer<S, Inc, Effect> {
-            override fun reduce(
-                state: S,
-                message: Inc,
-            ): ReducerResult<S, Effect> = S(state.value + message.amount) to setOf(Fx("inc-${message.amount}"))
-        }
+    private val reducer = object : MateReducer<S, Inc, Effect> {
+        override fun reduce(state: S, message: Inc): ReducerResult<S, Effect> =
+            S(state.value + message.amount) to setOf(Fx("inc-${message.amount}"))
+    }
 
     @Test
     fun positiveAssertionsPass() {
@@ -65,11 +62,11 @@ class MateTestHelperTest {
 
     @Test
     fun stateBuilderAppliesModificationsInOrder() {
-        val built =
-            S(0).toBuilder()
-                .modify { it.copy(value = it.value + 1) }
-                .modify { it.copy(value = it.value * 10) }
-                .build()
+        val built = S(0)
+            .toBuilder()
+            .modify { it.copy(value = it.value + 1) }
+            .modify { it.copy(value = it.value * 10) }
+            .build()
 
         assertEquals(S(10), built)
     }

@@ -6,10 +6,7 @@ import kotlin.time.Duration
 internal class RecordingObserver<State, Message, E : Effect> : MateObserver<State, Message, E> {
     val events = mutableListOf<String>()
 
-    override fun onMessage(
-        message: Message,
-        stateBefore: State,
-    ) {
+    override fun onMessage(message: Message, stateBefore: State) {
         events += "msg:$message"
     }
 
@@ -26,17 +23,11 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
         events += "fx-start:$effect"
     }
 
-    override fun onEffectFinished(
-        effect: E,
-        duration: Duration,
-    ) {
+    override fun onEffectFinished(effect: E, duration: Duration) {
         events += "fx-done:$effect"
     }
 
-    override fun onEffectFailed(
-        effect: E,
-        error: Throwable,
-    ) {
+    override fun onEffectFailed(effect: E, error: Throwable) {
         events += "fx-fail:$effect:${error.message}"
     }
 
@@ -48,10 +39,7 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
         events += "fx-recovered:$effect:${error.message}->$message"
     }
 
-    override fun onCausedMessage(
-        parent: E,
-        message: Message,
-    ) {
+    override fun onCausedMessage(parent: E, message: Message) {
         events += "caused:$parent->$message"
     }
 
@@ -63,10 +51,7 @@ internal class RecordingObserver<State, Message, E : Effect> : MateObserver<Stat
         events += "sub-stop:$sub"
     }
 
-    override fun onSubscriptionError(
-        sub: Subscription,
-        error: Throwable,
-    ) {
+    override fun onSubscriptionError(sub: Subscription, error: Throwable) {
         events += "sub-error:$sub:${error.message}"
     }
 }

@@ -31,20 +31,18 @@ class RunSuspendCatchingTest {
     }
 
     @Test
-    fun realCoroutineCancellationPropagates() =
-        runTest {
-            // Отмена живой корутины проходит сквозь хелпер, а не
-            // оседает в Result.failure.
-            var wrappedAsFailure = false
-            coroutineScope {
-                val job =
-                    launch {
-                        val result = runSuspendCatching { delay(10_000) }
-                        wrappedAsFailure = result.isFailure
-                    }
-                testScheduler.runCurrent()
-                job.cancel()
+    fun realCoroutineCancellationPropagates() = runTest {
+        // Отмена живой корутины проходит сквозь хелпер, а не
+        // оседает в Result.failure.
+        var wrappedAsFailure = false
+        coroutineScope {
+            val job = launch {
+                val result = runSuspendCatching { delay(10_000) }
+                wrappedAsFailure = result.isFailure
             }
-            assertEquals(false, wrappedAsFailure)
+            testScheduler.runCurrent()
+            job.cancel()
         }
+        assertEquals(false, wrappedAsFailure)
+    }
 }

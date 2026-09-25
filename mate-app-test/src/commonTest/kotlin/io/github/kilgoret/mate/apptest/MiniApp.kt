@@ -68,34 +68,29 @@ class CounterReducer : MateReducer<CounterState, CounterMsg, Effect> {
     override fun reduce(
         state: CounterState,
         message: CounterMsg,
-    ): ReducerResult<CounterState, Effect> =
-        when (message) {
-            CounterMsg.Inc -> {
-                val next = state.value + 1
-                state.copy(value = next) to setOf(CounterEffect.Persist(next))
-            }
-
-            is CounterMsg.Persisted -> state to emptySet()
-
-            is CounterMsg.LiveUpdated -> state.copy(live = message.items) to emptySet()
-
-            CounterMsg.Tick -> state.copy(ticks = state.ticks + 1) to emptySet()
-
-            is CounterMsg.OpenDetails ->
-                state to setOf(CounterNav.OpenDetails(message.id))
+    ): ReducerResult<CounterState, Effect> = when (message) {
+        CounterMsg.Inc -> {
+            val next = state.value + 1
+            state.copy(value = next) to setOf(CounterEffect.Persist(next))
         }
+
+        is CounterMsg.Persisted -> state to emptySet()
+
+        is CounterMsg.LiveUpdated -> state.copy(live = message.items) to emptySet()
+
+        CounterMsg.Tick -> state.copy(ticks = state.ticks + 1) to emptySet()
+
+        is CounterMsg.OpenDetails ->
+            state to setOf(CounterNav.OpenDetails(message.id))
+    }
 }
 
 /** Персист: use case-шов — сценарий подменяет поведение лямбдой. */
-class CounterEffectHandler(
-    private val persist: suspend (Int) -> Unit,
-) : MateEffectHandler<CounterMsg, CounterEffect> {
+class CounterEffectHandler(private val persist: suspend (Int) -> Unit) :
+    MateEffectHandler<CounterMsg, CounterEffect> {
     override val effectFamily: KClass<CounterEffect> = CounterEffect::class
 
-    override suspend fun runEffect(
-        effect: CounterEffect,
-        consumer: (CounterMsg) -> Unit,
-    ) {
+    override suspend fun runEffect(effect: CounterEffect, consumer: (CounterMsg) -> Unit) {
         when (effect) {
             is CounterEffect.Persist -> {
                 persist(effect.value)
@@ -105,23 +100,21 @@ class CounterEffectHandler(
     }
 }
 
-class CounterSubHandler(
-    private val live: Flow<List<String>>,
-) : MateSubscriptionHandler<CounterMsg, CounterSub> {
+class CounterSubHandler(private val live: Flow<List<String>>) :
+    MateSubscriptionHandler<CounterMsg, CounterSub> {
     override val subscriptionFamily: KClass<CounterSub> = CounterSub::class
 
-    override fun flow(sub: CounterSub): Flow<CounterMsg> =
-        when (sub) {
-            CounterSub.Live -> live.map { CounterMsg.LiveUpdated(it) }
+    override fun flow(sub: CounterSub): Flow<CounterMsg> = when (sub) {
+        CounterSub.Live -> live.map { CounterMsg.LiveUpdated(it) }
 
-            CounterSub.Ticker ->
-                flow {
-                    while (true) {
-                        delay(1_000)
-                        emit(CounterMsg.Tick)
-                    }
+        CounterSub.Ticker ->
+            flow {
+                while (true) {
+                    delay(1_000)
+                    emit(CounterMsg.Tick)
                 }
-        }
+            }
+    }
 }
 
 // ===== Panel: второй раннер узла Counter =====
@@ -133,10 +126,7 @@ sealed interface PanelMsg {
 }
 
 class PanelReducer : MateReducer<PanelState, PanelMsg, Effect> {
-    override fun reduce(
-        state: PanelState,
-        message: PanelMsg,
-    ): ReducerResult<PanelState, Effect> =
+    override fun reduce(state: PanelState, message: PanelMsg): ReducerResult<PanelState, Effect> =
         when (message) {
             is PanelMsg.SetNote -> state.copy(note = message.value) to emptySet()
         }
@@ -154,86 +144,75 @@ class DetailsReducer : MateReducer<DetailsState, DetailsMsg, Effect> {
     override fun reduce(
         state: DetailsState,
         message: DetailsMsg,
-    ): ReducerResult<DetailsState, Effect> =
-        when (message) {
-            DetailsMsg.Close -> state to setOf(NavigationEffect.Back)
-        }
+    ): ReducerResult<DetailsState, Effect> = when (message) {
+        DetailsMsg.Close -> state to setOf(NavigationEffect.Back)
+    }
 }
 
 // ===== Сборка =====
 
-val miniNavGraph: NavGraph =
-    navGraph {
-        on<NavigationEffect.Back> { pop() }
-        on<CounterNav.OpenDetails> { push(DetailsScreen(it.id)) }
-    }
+val miniNavGraph: NavGraph = navGraph {
+    on<NavigationEffect.Back> { pop() }
+    on<CounterNav.OpenDetails> { push(DetailsScreen(it.id)) }
+}
 
-fun miniRegistry(
-    live: Flow<List<String>>,
-    persist: suspend (Int) -> Unit = {},
-): ScreenRegistry =
+fun miniRegistry(live: Flow<List<String>>, persist: suspend (Int) -> Unit = {}): ScreenRegistry =
     screenRegistry {
         on<CounterScreen> { screen, context ->
             ScreenNode(
                 screen = screen,
-                runners =
-                    listOf(
-                        RunnerSlot(
-                            name = "counter",
-                            messageFamily = CounterMsg::class,
-                            holder =
-                                Mate<CounterState, CounterMsg, Effect>(
-                                    initState = CounterState(),
-                                    reducer = CounterReducer(),
-                                    initEffects = emptySet(),
-                                    effectHandlers =
-                                        listOf(
-                                            CounterEffectHandler(persist),
-                                            context.navigationHandler,
-                                        ),
-                                    subscriptions = {
-                                        setOf(CounterSub.Live, CounterSub.Ticker)
-                                    },
-                                    subscriptionHandlers = listOf(CounterSubHandler(live)),
-                                    observers = listOf(context.observer),
-                                    coroutineScope = context.scope,
-                                ),
-                        ),
-                        RunnerSlot(
-                            name = "panel",
-                            messageFamily = PanelMsg::class,
-                            holder =
-                                Mate<PanelState, PanelMsg, Effect>(
-                                    initState = PanelState(),
-                                    reducer = PanelReducer(),
-                                    initEffects = emptySet(),
-                                    effectHandlers = emptyList(),
-                                    observers = listOf(context.observer),
-                                    coroutineScope = context.scope,
-                                ),
+                runners = listOf(
+                    RunnerSlot(
+                        name = "counter",
+                        messageFamily = CounterMsg::class,
+                        holder = Mate<CounterState, CounterMsg, Effect>(
+                            initState = CounterState(),
+                            reducer = CounterReducer(),
+                            initEffects = emptySet(),
+                            effectHandlers = listOf(
+                                CounterEffectHandler(persist),
+                                context.navigationHandler,
+                            ),
+                            subscriptions = {
+                                setOf(CounterSub.Live, CounterSub.Ticker)
+                            },
+                            subscriptionHandlers = listOf(CounterSubHandler(live)),
+                            observers = listOf(context.observer),
+                            coroutineScope = context.scope,
                         ),
                     ),
+                    RunnerSlot(
+                        name = "panel",
+                        messageFamily = PanelMsg::class,
+                        holder = Mate<PanelState, PanelMsg, Effect>(
+                            initState = PanelState(),
+                            reducer = PanelReducer(),
+                            initEffects = emptySet(),
+                            effectHandlers = emptyList(),
+                            observers = listOf(context.observer),
+                            coroutineScope = context.scope,
+                        ),
+                    ),
+                ),
             )
         }
         on<DetailsScreen> { screen, context ->
             ScreenNode(
                 screen = screen,
-                runners =
-                    listOf(
-                        RunnerSlot(
-                            name = "details",
-                            messageFamily = DetailsMsg::class,
-                            holder =
-                                Mate<DetailsState, DetailsMsg, Effect>(
-                                    initState = DetailsState(id = screen.id),
-                                    reducer = DetailsReducer(),
-                                    initEffects = emptySet(),
-                                    effectHandlers = listOf(context.navigationHandler),
-                                    observers = listOf(context.observer),
-                                    coroutineScope = context.scope,
-                                ),
+                runners = listOf(
+                    RunnerSlot(
+                        name = "details",
+                        messageFamily = DetailsMsg::class,
+                        holder = Mate<DetailsState, DetailsMsg, Effect>(
+                            initState = DetailsState(id = screen.id),
+                            reducer = DetailsReducer(),
+                            initEffects = emptySet(),
+                            effectHandlers = listOf(context.navigationHandler),
+                            observers = listOf(context.observer),
+                            coroutineScope = context.scope,
                         ),
                     ),
+                ),
             )
         }
     }

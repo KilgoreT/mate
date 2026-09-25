@@ -62,16 +62,15 @@ public class Mate<State, Message, E : Effect>(
     private val mailbox = Channel<Message>(Channel.UNLIMITED)
 
     /** Реестр «семейство → исполнитель»; дубль семейства — fail сразу. */
-    private val effectRegistry: Map<KClass<*>, MateEffectHandler<Message, *>> =
-        buildMap {
-            effectHandlers.forEach { handler ->
-                val previous = put(handler.effectFamily, handler)
-                require(previous == null) {
-                    "Two handlers declare the same effect family " +
-                        "'${handler.effectFamily.simpleName}': split them"
-                }
+    private val effectRegistry: Map<KClass<*>, MateEffectHandler<Message, *>> = buildMap {
+        effectHandlers.forEach { handler ->
+            val previous = put(handler.effectFamily, handler)
+            require(previous == null) {
+                "Two handlers declare the same effect family " +
+                    "'${handler.effectFamily.simpleName}': split them"
             }
         }
+    }
 
     /** Кэш резолва «конкретный класс эффекта → исполнитель». */
     private val effectResolveCache = mutableMapOf<KClass<*>, MateEffectHandler<Message, *>>()
@@ -88,7 +87,8 @@ public class Mate<State, Message, E : Effect>(
             }
         }
 
-    private val subscriptionResolveCache = mutableMapOf<KClass<*>, MateSubscriptionHandler<Message, *>>()
+    private val subscriptionResolveCache =
+        mutableMapOf<KClass<*>, MateSubscriptionHandler<Message, *>>()
 
     /** Активные подписки: данные Subscription → job коллектора. */
     private val activeSubscriptions = mutableMapOf<Subscription, Job>()
@@ -148,30 +148,35 @@ public class Mate<State, Message, E : Effect>(
             if (sub in activeSubscriptions) return@forEach
             val handler = resolveSubscriptionHandler(sub) ?: return@forEach
             notifyObservers { onSubscriptionStarted(sub) }
-            activeSubscriptions[sub] =
-                coroutineScope.launch {
-                    try {
-                        @Suppress("UNCHECKED_CAST")
-                        (handler as MateSubscriptionHandler<Message, Subscription>)
-                            .flow(sub)
-                            .collect { message -> accept(message) }
-                    } catch (error: CancellationException) {
-                        throw error
-                    } catch (error: Throwable) {
-                        notifyObservers { onSubscriptionError(sub, error) }
-                        failPolicy.onError(MateError.SubscriptionFailed(sub, error))
-                    }
+            activeSubscriptions[sub] = coroutineScope.launch {
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    (handler as MateSubscriptionHandler<Message, Subscription>)
+                        .flow(sub)
+                        .collect { message -> accept(message) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Throwable) {
+                    notifyObservers { onSubscriptionError(sub, error) }
+                    failPolicy.onError(MateError.SubscriptionFailed(sub, error))
                 }
+            }
         }
     }
 
-    private fun resolveSubscriptionHandler(sub: Subscription): MateSubscriptionHandler<Message, *>? {
+    private fun resolveSubscriptionHandler(
+        sub: Subscription,
+    ): MateSubscriptionHandler<Message, *>? {
         val subClass = sub::class
         subscriptionResolveCache[subClass]?.let { return it }
 
         val matches = subscriptionRegistry.entries.filter { (family, _) -> family.isInstance(sub) }
         return when (matches.size) {
-            1 -> matches.single().value.also { subscriptionResolveCache[subClass] = it }
+            1 ->
+                matches
+                    .single()
+                    .value
+                    .also { subscriptionResolveCache[subClass] = it }
             0 -> {
                 failPolicy.onError(MateError.OrphanSubscription(sub))
                 null
@@ -180,11 +185,10 @@ public class Mate<State, Message, E : Effect>(
                 failPolicy.onError(
                     MateError.AmbiguousSubscription(
                         sub = sub,
-                        families =
-                            matches.map {
-                                @Suppress("UNCHECKED_CAST")
-                                it.key as KClass<out Subscription>
-                            },
+                        families = matches.map {
+                            @Suppress("UNCHECKED_CAST")
+                            it.key as KClass<out Subscription>
+                        },
                     ),
                 )
                 null
@@ -221,23 +225,19 @@ public class Mate<State, Message, E : Effect>(
         }
     }
 
-    private fun handleEffectFailure(
-        effect: E,
-        error: Throwable,
-    ) {
+    private fun handleEffectFailure(effect: E, error: Throwable) {
         // Recovery-Msg эффекта, объявившего ответ на провал. null в
         // двух случаях: эффект не Recoverable, либо onFail сам упал
         // (его исключение прикрепляется к исходному suppressed'ом).
         @Suppress("UNCHECKED_CAST")
-        val recovery: Message? =
-            (effect as? RecoverableEffect<Message>)?.let { recoverable ->
-                try {
-                    recoverable.onFail(error)
-                } catch (recoveryError: Throwable) {
-                    error.addSuppressed(recoveryError)
-                    null
-                }
+        val recovery: Message? = (effect as? RecoverableEffect<Message>)?.let { recoverable ->
+            try {
+                recoverable.onFail(error)
+            } catch (recoveryError: Throwable) {
+                error.addSuppressed(recoveryError)
+                null
             }
+        }
         if (recovery != null) {
             notifyObservers {
                 onEffectRecovered(effect, error, recovery)
@@ -256,7 +256,11 @@ public class Mate<State, Message, E : Effect>(
 
         val matches = effectRegistry.entries.filter { (family, _) -> family.isInstance(effect) }
         return when (matches.size) {
-            1 -> matches.single().value.also { effectResolveCache[effectClass] = it }
+            1 ->
+                matches
+                    .single()
+                    .value
+                    .also { effectResolveCache[effectClass] = it }
             0 -> {
                 failPolicy.onError(MateError.OrphanEffect(effect))
                 null
@@ -265,11 +269,10 @@ public class Mate<State, Message, E : Effect>(
                 failPolicy.onError(
                     MateError.AmbiguousEffect(
                         effect = effect,
-                        families =
-                            matches.map {
-                                @Suppress("UNCHECKED_CAST")
-                                it.key as KClass<out Effect>
-                            },
+                        families = matches.map {
+                            @Suppress("UNCHECKED_CAST")
+                            it.key as KClass<out Effect>
+                        },
                     ),
                 )
                 null

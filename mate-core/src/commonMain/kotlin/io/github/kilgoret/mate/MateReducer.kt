@@ -13,10 +13,7 @@ public typealias ReducerResult<State, Effect> = Pair<State, Set<Effect>>
  * любом состоянии (невозможный — явный no-op).
  */
 public interface MateReducer<State, Message, Effect> {
-    public fun reduce(
-        state: State,
-        message: Message,
-    ): ReducerResult<State, Effect>
+    public fun reduce(state: State, message: Message): ReducerResult<State, Effect>
 }
 
 public fun <STATE, EFFECTS> ReducerResult<STATE, EFFECTS>.state(): STATE = first

@@ -29,10 +29,7 @@ public class HarnessContext internal constructor(
 
 /** Фабрика узла: из данных экрана и контекста собирает раннеры. */
 public fun interface NodeFactory<S : Screen> {
-    public fun create(
-        screen: S,
-        context: HarnessContext,
-    ): ScreenNode
+    public fun create(screen: S, context: HarnessContext): ScreenNode
 }
 
 /**
@@ -44,16 +41,12 @@ public fun interface NodeFactory<S : Screen> {
 public class ScreenRegistry internal constructor(
     private val factories: Map<KClass<out Screen>, NodeFactory<Screen>>,
 ) {
-    internal fun create(
-        screen: Screen,
-        context: HarnessContext,
-    ): ScreenNode {
-        val factory =
-            factories[screen::class]
-                ?: error(
-                    "No node factory for screen '${screen::class.simpleName}': " +
-                        "add it to screenRegistry { on<...> { ... } }",
-                )
+    internal fun create(screen: Screen, context: HarnessContext): ScreenNode {
+        val factory = factories[screen::class]
+            ?: error(
+                "No node factory for screen '${screen::class.simpleName}': " +
+                    "add it to screenRegistry { on<...> { ... } }",
+            )
         return factory.create(screen, context)
     }
 }
@@ -65,11 +58,10 @@ public class ScreenRegistryBuilder internal constructor() {
 
     /** Объявить фабрику узла для экранов класса [S]. */
     public inline fun <reified S : Screen> on(factory: NodeFactory<S>) {
-        val previous =
-            factories.put(S::class) { screen, context ->
-                @Suppress("UNCHECKED_CAST")
-                factory.create(screen as S, context)
-            }
+        val previous = factories.put(S::class) { screen, context ->
+            @Suppress("UNCHECKED_CAST")
+            factory.create(screen as S, context)
+        }
         require(previous == null) {
             "Node factory for '${S::class.simpleName}' is declared twice: merge them"
         }
@@ -77,5 +69,9 @@ public class ScreenRegistryBuilder internal constructor() {
 }
 
 /** Собрать реестр экранов харнеса. */
-public fun screenRegistry(build: ScreenRegistryBuilder.() -> Unit): ScreenRegistry =
-    ScreenRegistry(ScreenRegistryBuilder().apply(build).factories.toMap())
+public fun screenRegistry(build: ScreenRegistryBuilder.() -> Unit): ScreenRegistry = ScreenRegistry(
+    ScreenRegistryBuilder()
+        .apply(build)
+        .factories
+        .toMap(),
+)

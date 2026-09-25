@@ -17,10 +17,7 @@ import kotlin.time.Duration
  */
 public interface MateObserver<in State, in Message, in Effect> {
     /** Message взят из mailbox, до reduce. */
-    public fun onMessage(
-        message: Message,
-        stateBefore: State,
-    ): Unit = Unit
+    public fun onMessage(message: Message, stateBefore: State): Unit = Unit
 
     /** Reduce выполнен: полное изменение одним вызовом. */
     public fun onReduced(
@@ -34,16 +31,10 @@ public interface MateObserver<in State, in Message, in Effect> {
     public fun onEffectStarted(effect: Effect): Unit = Unit
 
     /** Исполнитель завершил эффект. */
-    public fun onEffectFinished(
-        effect: Effect,
-        duration: Duration,
-    ): Unit = Unit
+    public fun onEffectFinished(effect: Effect, duration: Duration): Unit = Unit
 
     /** Исполнение эффекта упало ([MateError.EffectFailed] уйдёт в политику). */
-    public fun onEffectFailed(
-        effect: Effect,
-        error: Throwable,
-    ): Unit = Unit
+    public fun onEffectFailed(effect: Effect, error: Throwable): Unit = Unit
 
     /**
      * Исполнение эффекта упало, но эффект — [RecoverableEffect]:
@@ -61,10 +52,7 @@ public interface MateObserver<in State, in Message, in Effect> {
      * Причинная связь: [parent] — эффект, при исполнении которого
      * handler вернул [message] в цикл через consumer.
      */
-    public fun onCausedMessage(
-        parent: Effect,
-        message: Message,
-    ): Unit = Unit
+    public fun onCausedMessage(parent: Effect, message: Message): Unit = Unit
 
     /**
      * Подписка включена. После каждого reduce (и один раз при
@@ -83,8 +71,5 @@ public interface MateObserver<in State, in Message, in Effect> {
     public fun onSubscriptionStopped(sub: Subscription): Unit = Unit
 
     /** Поток подписки упал необработанным исключением. */
-    public fun onSubscriptionError(
-        sub: Subscription,
-        error: Throwable,
-    ): Unit = Unit
+    public fun onSubscriptionError(sub: Subscription, error: Throwable): Unit = Unit
 }

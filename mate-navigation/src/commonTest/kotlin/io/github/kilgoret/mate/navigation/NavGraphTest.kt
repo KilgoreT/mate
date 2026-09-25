@@ -17,11 +17,10 @@ class NavGraphTest {
 
     @Test
     fun resolvesExactEffectClassToCommands() {
-        val graph =
-            navGraph {
-                on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
-                on<NavigationEffect.Back> { pop() }
-            }
+        val graph = navGraph {
+            on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
+            on<NavigationEffect.Back> { pop() }
+        }
 
         assertEquals(
             listOf<NavCommand>(NavCommand.Push(CardScreen(42))),
@@ -40,11 +39,10 @@ class NavGraphTest {
 
     @Test
     fun exactRouteWinsOverSupertypeRoute() {
-        val graph =
-            navGraph {
-                on<WordsNav> { pop() }
-                on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
-            }
+        val graph = navGraph {
+            on<WordsNav> { pop() }
+            on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
+        }
 
         assertEquals(
             listOf<NavCommand>(NavCommand.Push(CardScreen(1))),
@@ -72,13 +70,12 @@ class NavGraphTest {
     @Test
     fun compositeRouteKeepsCommandOrder() {
         // Составной переход: pop текущего + push нового — по порядку.
-        val graph =
-            navGraph {
-                on<WordsNav.OpenCard> {
-                    pop()
-                    push(CardScreen(it.wordId))
-                }
+        val graph = navGraph {
+            on<WordsNav.OpenCard> {
+                pop()
+                push(CardScreen(it.wordId))
             }
+        }
 
         assertEquals(
             listOf(NavCommand.Pop, NavCommand.Push(CardScreen(7))),

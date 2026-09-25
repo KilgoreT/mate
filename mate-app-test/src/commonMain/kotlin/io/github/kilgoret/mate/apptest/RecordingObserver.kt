@@ -67,10 +67,7 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
 
     internal var cursor: Int = 0
 
-    override fun onMessage(
-        message: Any?,
-        stateBefore: Any?,
-    ) {
+    override fun onMessage(message: Any?, stateBefore: Any?) {
         _events += HarnessEvent.MessageReceived(message, stateBefore)
     }
 
@@ -87,17 +84,11 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
         _events += HarnessEvent.EffectStarted(effect)
     }
 
-    override fun onEffectFinished(
-        effect: Effect,
-        duration: Duration,
-    ) {
+    override fun onEffectFinished(effect: Effect, duration: Duration) {
         _events += HarnessEvent.EffectFinished(effect, duration)
     }
 
-    override fun onEffectFailed(
-        effect: Effect,
-        error: Throwable,
-    ) {
+    override fun onEffectFailed(effect: Effect, error: Throwable) {
         _events += HarnessEvent.EffectFailed(effect, error)
     }
 
@@ -109,10 +100,7 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
         _events += HarnessEvent.EffectRecovered(effect, error, message)
     }
 
-    override fun onCausedMessage(
-        parent: Effect,
-        message: Any?,
-    ) {
+    override fun onCausedMessage(parent: Effect, message: Any?) {
         _events += HarnessEvent.CausedMessage(parent, message)
     }
 
@@ -124,10 +112,7 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
         _events += HarnessEvent.SubscriptionStopped(sub)
     }
 
-    override fun onSubscriptionError(
-        sub: Subscription,
-        error: Throwable,
-    ) {
+    override fun onSubscriptionError(sub: Subscription, error: Throwable) {
         _events += HarnessEvent.SubscriptionError(sub, error)
     }
 
@@ -140,12 +125,11 @@ public class RecordingObserver internal constructor() : MateObserver<Any?, Any?,
     }
 
     /** Полная лента, пронумерованная, с маркером курсора. */
-    public fun renderTrace(): String =
-        buildString {
-            appendLine("=== harness trace (${_events.size} events, cursor=$cursor) ===")
-            _events.forEachIndexed { index, event ->
-                val marker = if (index == cursor) ">" else " "
-                appendLine("$marker[$index] $event")
-            }
+    public fun renderTrace(): String = buildString {
+        appendLine("=== harness trace (${_events.size} events, cursor=$cursor) ===")
+        _events.forEachIndexed { index, event ->
+            val marker = if (index == cursor) ">" else " "
+            appendLine("$marker[$index] $event")
         }
+    }
 }

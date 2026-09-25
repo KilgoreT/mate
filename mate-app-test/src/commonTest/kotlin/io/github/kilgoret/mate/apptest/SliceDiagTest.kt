@@ -16,39 +16,34 @@ class SliceDiagTest {
         on<CounterScreen> { screen, context ->
             ScreenNode(
                 screen = screen,
-                runners =
-                    listOf(
-                        RunnerSlot(
-                            name = "counter",
-                            messageFamily = CounterMsg::class,
-                            holder =
-                                Mate<CounterState, CounterMsg, Effect>(
-                                    initState = CounterState(),
-                                    reducer = CounterReducer(),
-                                    initEffects = emptySet(),
-                                    effectHandlers =
-                                        listOf(
-                                            CounterEffectHandler(persist),
-                                            context.navigationHandler,
-                                        ),
-                                    subscriptions =
-                                        if (live == null && !ticker) {
-                                            null
-                                        } else {
-                                            {
-                                                buildSet<Subscription> {
-                                                    if (live != null) add(CounterSub.Live)
-                                                    if (ticker) add(CounterSub.Ticker)
-                                                }
-                                            }
-                                        },
-                                    subscriptionHandlers =
-                                        listOf(CounterSubHandler(live ?: stubFlow())),
-                                    observers = listOf(context.observer),
-                                    coroutineScope = context.scope,
-                                ),
+                runners = listOf(
+                    RunnerSlot(
+                        name = "counter",
+                        messageFamily = CounterMsg::class,
+                        holder = Mate<CounterState, CounterMsg, Effect>(
+                            initState = CounterState(),
+                            reducer = CounterReducer(),
+                            initEffects = emptySet(),
+                            effectHandlers = listOf(
+                                CounterEffectHandler(persist),
+                                context.navigationHandler,
+                            ),
+                            subscriptions = if (live == null && !ticker) {
+                                null
+                            } else {
+                                {
+                                    buildSet<Subscription> {
+                                        if (live != null) add(CounterSub.Live)
+                                        if (ticker) add(CounterSub.Ticker)
+                                    }
+                                }
+                            },
+                            subscriptionHandlers = listOf(CounterSubHandler(live ?: stubFlow())),
+                            observers = listOf(context.observer),
+                            coroutineScope = context.scope,
                         ),
                     ),
+                ),
             )
         }
     }
@@ -74,76 +69,74 @@ class SliceDiagTest {
     }
 
     @Test
-    fun bareTickerOnRunMateTest() =
-        io.github.kilgoret.mate.test.runMateTest { mateScope ->
-            val mate =
-                Mate<CounterState, CounterMsg, Effect>(
-                    initState = CounterState(),
-                    reducer = CounterReducer(),
-                    initEffects = emptySet(),
-                    effectHandlers = emptyList(),
-                    subscriptions = { setOf(CounterSub.Ticker) },
-                    subscriptionHandlers = listOf(CounterSubHandler(stubFlow())),
-                    coroutineScope = mateScope,
-                )
-            testScheduler.runCurrent()
-            assertEquals(0, mate.state.value.ticks)
-            testScheduler.advanceTimeBy(2_000)
-            testScheduler.runCurrent()
-            assertEquals(2, mate.state.value.ticks)
-        }
+    fun bareTickerOnRunMateTest() = io.github.kilgoret.mate.test.runMateTest { mateScope ->
+        val mate = Mate<CounterState, CounterMsg, Effect>(
+            initState = CounterState(),
+            reducer = CounterReducer(),
+            initEffects = emptySet(),
+            effectHandlers = emptyList(),
+            subscriptions = { setOf(CounterSub.Ticker) },
+            subscriptionHandlers = listOf(CounterSubHandler(stubFlow())),
+            coroutineScope = mateScope,
+        )
+        testScheduler.runCurrent()
+        assertEquals(0, mate.state.value.ticks)
+        testScheduler.advanceTimeBy(2_000)
+        testScheduler.runCurrent()
+        assertEquals(2, mate.state.value.ticks)
+    }
 
     @Test
     fun tickerInHarnessWithFuse() {
         // Предохранитель: если тикер молотит без сна — стек покажет, кто крутит.
         var fuse = 0
-        val fusedTicker =
-            kotlinx.coroutines.flow.flow {
-                while (true) {
-                    check(++fuse <= 10) { "ticker spun $fuse times without sleeping" }
-                    kotlinx.coroutines.delay(1_000)
-                    emit(CounterMsg.Tick)
-                }
+        val fusedTicker = kotlinx.coroutines.flow.flow {
+            while (true) {
+                check(++fuse <= 10) { "ticker spun $fuse times without sleeping" }
+                kotlinx.coroutines.delay(1_000)
+                emit(CounterMsg.Tick)
             }
-        val registry =
-            screenRegistry {
-                on<CounterScreen> { screen, context ->
-                    ScreenNode(
-                        screen = screen,
-                        runners =
-                            listOf(
-                                RunnerSlot(
-                                    name = "counter",
-                                    messageFamily = CounterMsg::class,
-                                    holder =
-                                        Mate<CounterState, CounterMsg, Effect>(
-                                            initState = CounterState(),
-                                            reducer = CounterReducer(),
-                                            initEffects = emptySet(),
-                                            effectHandlers = emptyList(),
-                                            subscriptions = { setOf(CounterSub.Ticker) },
-                                            subscriptionHandlers =
-                                                listOf(
-                                                    object :
-                                                        io.github.kilgoret.mate.MateSubscriptionHandler<
-                                                            CounterMsg,
-                                                            CounterSub,
-                                                            > {
-                                                        override val subscriptionFamily = CounterSub::class
+        }
+        val registry = screenRegistry {
+            on<CounterScreen> { screen, context ->
+                ScreenNode(
+                    screen = screen,
+                    runners = listOf(
+                        RunnerSlot(
+                            name = "counter",
+                            messageFamily = CounterMsg::class,
+                            holder = Mate<CounterState, CounterMsg, Effect>(
+                                initState = CounterState(),
+                                reducer = CounterReducer(),
+                                initEffects = emptySet(),
+                                effectHandlers = emptyList(),
+                                subscriptions = { setOf(CounterSub.Ticker) },
+                                subscriptionHandlers = listOf(
+                                    object :
+                                        io.github.kilgoret.mate.MateSubscriptionHandler<
+                                            CounterMsg,
+                                            CounterSub,
+                                        > {
+                                        override val subscriptionFamily = CounterSub::class
 
-                                                        override fun flow(sub: CounterSub) = fusedTicker
-                                                    },
-                                                ),
-                                            coroutineScope = context.scope,
-                                        ),
+                                        override fun flow(sub: CounterSub) = fusedTicker
+                                    },
                                 ),
+                                coroutineScope = context.scope,
                             ),
-                    )
-                }
+                        ),
+                    ),
+                )
             }
+        }
         runAppScenario(registry, miniNavGraph) {
             launch(CounterScreen)
-            advanceTimeBy(kotlin.time.Duration.parse("2s"))
+            advanceTimeBy(
+                kotlin
+                    .time
+                    .Duration
+                    .parse("2s"),
+            )
             expectState<CounterState> { assertEquals(2, it.ticks) }
         }
     }
@@ -152,7 +145,12 @@ class SliceDiagTest {
     fun counterWithTickerOnly() {
         runAppScenario(counterRegistry(live = null, ticker = true), miniNavGraph) {
             launch(CounterScreen)
-            advanceTimeBy(kotlin.time.Duration.parse("2s"))
+            advanceTimeBy(
+                kotlin
+                    .time
+                    .Duration
+                    .parse("2s"),
+            )
             expectState<CounterState> { assertEquals(2, it.ticks) }
         }
     }

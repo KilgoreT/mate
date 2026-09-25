@@ -1,0 +1,26 @@
+root = true
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+max_line_length = 100
+
+# «=» не висячий: правая часть начинается на строке присваивания,
+# перенос вправо — только у неделимых длинных выражений.
+ktlint_standard_multiline-expression-wrapping = disabled
+
+# Разбитая цепочка — каждое звено с точки на своей строке;
+# цепочка из 3+ звеньев — всегда вертикально.
+ktlint_standard_chain-method-continuation = enabled
+ktlint_chain_method_rule_force_multiline_when_chain_operator_count_greater_or_equal_than = 3
+
+# Data class: 1-2 параметра — однострочно, 3+ — вертикально.
+ktlint_class_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 3
+
+# Кастомные правила (io.github.kilgoret:ktlint-rules).
+ktlint_kilgoret_assignment-not-hanging = enabled
+ktlint_kilgoret_chain-link-wrap = enabled
+ktlint_kilgoret_no-multiline-string-template = enabled
+
+# Expression-body функции приклеивается к «=», пока влезает в лимит.
+ktlint_function_signature_body_expression_wrapping = default
+ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 3

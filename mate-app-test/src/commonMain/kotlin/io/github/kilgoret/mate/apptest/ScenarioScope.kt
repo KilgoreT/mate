@@ -27,12 +27,11 @@ public fun runAppScenario(
     registry: ScreenRegistry,
     graph: NavGraph,
     block: suspend ScenarioScope.() -> Unit,
-): TestResult =
-    runMateTest { mateScope ->
-        val harness = AppHarness(registry, graph, mateScope)
-        harness.attach()
-        ScenarioScope(harness, this).block()
-    }
+): TestResult = runMateTest { mateScope ->
+    val harness = AppHarness(registry, graph, mateScope)
+    harness.attach()
+    ScenarioScope(harness, this).block()
+}
 
 /**
  * DSL сценария. Каждый шаг, меняющий мир ([launch]/[send]/[back]/
@@ -109,11 +108,13 @@ public class ScenarioScope internal constructor(
         val matches = states.values.filterIsInstance<S>()
         when (matches.size) {
             1 -> withTrace { block(matches.single()) }
-            0 ->
+            0 -> {
+                val stateTypes = states.mapValues { it.value?.let { v -> v::class.simpleName } }
                 failWithTrace(
                     "No runner state of type ${S::class.simpleName} on top node; " +
-                        "states: ${states.mapValues { it.value?.let { v -> v::class.simpleName } }}",
+                        "states: $stateTypes",
                 )
+            }
             else ->
                 failWithTrace(
                     "State type ${S::class.simpleName} is ambiguous on top node — use runner(name)",
@@ -122,14 +123,21 @@ public class ScenarioScope internal constructor(
     }
 
     /** State раннера верхнего узла по имени. */
-    public fun runnerState(name: String): Any? = harness.currentNode.runner(name).holder.state.value
+    public fun runnerState(name: String): Any? = harness
+        .currentNode
+        .runner(name)
+        .holder
+        .state
+        .value
 
     /** Проверить стек экранов: верхний равен [screen]. */
     public fun expectScreen(screen: Screen) {
         withTrace {
             val top = harness.screens.lastOrNull()
             if (top != screen) {
-                throw AssertionError("Expected top screen $screen, but was $top; stack=${harness.screens}")
+                throw AssertionError(
+                    "Expected top screen $screen, but was $top; stack=${harness.screens}",
+                )
             }
         }
     }
@@ -157,10 +165,10 @@ public class ScenarioScope internal constructor(
     /** Убедиться, что эффект [effect] дальше по ленте НЕ появлялся. */
     public fun expectNoEffect(effect: Effect) {
         withTrace {
-            val found =
-                recording.events
-                    .drop(recording.cursor)
-                    .any { it is HarnessEvent.EffectStarted && it.effect == effect }
+            val found = recording
+                .events
+                .drop(recording.cursor)
+                .any { it is HarnessEvent.EffectStarted && it.effect == effect }
             if (found) {
                 throw AssertionError("Effect $effect was dispatched, but expected not to be")
             }
@@ -168,7 +176,9 @@ public class ScenarioScope internal constructor(
     }
 
     @PublishedApi
-    internal fun currentStates(): Map<String, Any?> = harness.currentNode.runners.associate { it.name to it.holder.state.value }
+    internal fun currentStates(): Map<String, Any?> = harness.currentNode.runners.associate {
+        it.name to it.holder.state.value
+    }
 
     /** Дополнить любое падение полной лентой сценария. */
     @PublishedApi
@@ -184,5 +194,6 @@ public class ScenarioScope internal constructor(
     }
 
     @PublishedApi
-    internal fun failWithTrace(message: String): Nothing = throw AssertionError("$message\n\n${recording.renderTrace()}")
+    internal fun failWithTrace(message: String): Nothing =
+        throw AssertionError("$message\n\n${recording.renderTrace()}")
 }

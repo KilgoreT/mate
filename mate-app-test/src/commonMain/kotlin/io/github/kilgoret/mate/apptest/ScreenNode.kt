@@ -30,10 +30,7 @@ public class RunnerSlot(
  * @param runners раннеры узла; имена уникальны, семейства сообщений
  *   не пересекаются (иначе send неоднозначен — fail при создании).
  */
-public class ScreenNode(
-    public val screen: Screen,
-    public val runners: List<RunnerSlot>,
-) {
+public class ScreenNode(public val screen: Screen, public val runners: List<RunnerSlot>) {
     init {
         require(runners.isNotEmpty()) { "ScreenNode for '$screen' has no runners" }
         val names = runners.map { it.name }
@@ -47,10 +44,9 @@ public class ScreenNode(
         }
     }
 
-    public fun runner(name: String): RunnerSlot =
-        runners.find { it.name == name }
-            ?: error(
-                "No runner '$name' in node '${screen::class.simpleName}'; " +
-                    "known: ${runners.map { it.name }}",
-            )
+    public fun runner(name: String): RunnerSlot = runners.find { it.name == name }
+        ?: error(
+            "No runner '$name' in node '${screen::class.simpleName}'; " +
+                "known: ${runners.map { it.name }}",
+        )
 }

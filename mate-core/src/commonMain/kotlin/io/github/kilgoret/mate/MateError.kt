@@ -9,43 +9,26 @@ import kotlin.reflect.KClass
  */
 public sealed interface MateError {
     /** Исключение при обработке сообщения (reduce/observer-стадия). */
-    public data class MessageFailed(
-        val message: Any?,
-        val cause: Throwable,
-    ) : MateError
+    public data class MessageFailed(val message: Any?, val cause: Throwable) : MateError
 
     /** Исключение при исполнении эффекта handler'ом. */
-    public data class EffectFailed(
-        val effect: Effect,
-        val cause: Throwable,
-    ) : MateError
+    public data class EffectFailed(val effect: Effect, val cause: Throwable) : MateError
 
     /** Эффект-«сирота»: его семейство не заявлено ни одним handler'ом. */
-    public data class OrphanEffect(
-        val effect: Effect,
-    ) : MateError
+    public data class OrphanEffect(val effect: Effect) : MateError
 
     /** Эффект матчится на НЕСКОЛЬКО семейств — запрещено (раздели). */
-    public data class AmbiguousEffect(
-        val effect: Effect,
-        val families: List<KClass<out Effect>>,
-    ) : MateError
+    public data class AmbiguousEffect(val effect: Effect, val families: List<KClass<out Effect>>) :
+        MateError
 
     /** Message отвергнут mailbox'ом (раннер уже остановлен). */
-    public data class MessageRejected(
-        val message: Any?,
-    ) : MateError
+    public data class MessageRejected(val message: Any?) : MateError
 
     /** Поток подписки упал необработанным исключением; подписка погашена. */
-    public data class SubscriptionFailed(
-        val sub: Subscription,
-        val cause: Throwable,
-    ) : MateError
+    public data class SubscriptionFailed(val sub: Subscription, val cause: Throwable) : MateError
 
     /** Подписка-«сирота»: её семейство не заявлено ни одним handler'ом. */
-    public data class OrphanSubscription(
-        val sub: Subscription,
-    ) : MateError
+    public data class OrphanSubscription(val sub: Subscription) : MateError
 
     /** Подписка матчится на НЕСКОЛЬКО семейств — запрещено (раздели). */
     public data class AmbiguousSubscription(
@@ -68,14 +51,12 @@ public fun interface MateFailPolicy {
 
     public companion object {
         /** Debug-режим: любой [MateError] — немедленный краш. */
-        public val Strict: MateFailPolicy =
-            MateFailPolicy { error ->
-                throw MateException(error)
-            }
+        public val Strict: MateFailPolicy = MateFailPolicy { error ->
+            throw MateException(error)
+        }
     }
 }
 
 /** Исключение [MateFailPolicy.Strict]. */
-public class MateException(
-    public val error: MateError,
-) : IllegalStateException("Mate runtime error: $error")
+public class MateException(public val error: MateError) :
+    IllegalStateException("Mate runtime error: $error")

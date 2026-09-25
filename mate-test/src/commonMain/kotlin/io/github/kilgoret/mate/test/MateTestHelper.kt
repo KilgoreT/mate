@@ -32,7 +32,9 @@ public fun <STATE, EFFECTS> ReducerResult<STATE, EFFECTS>.assertNoEffects(
 }
 
 public inline fun <reified EFFECT_TYPE> ReducerResult<*, *>.assertSingleEffect(
-    message: String = "Should have exactly one ${EFFECT_TYPE::class.simpleName} but had ${effects().size}: ${effects()}",
+    message: String =
+        "Should have exactly one ${EFFECT_TYPE::class.simpleName} " +
+            "but had ${effects().size}: ${effects()}",
 ) {
     assertEquals(1, effects().size, message)
     assertTrue(effects().first() is EFFECT_TYPE, message)
@@ -55,9 +57,7 @@ public inline fun <reified EFFECT_TYPE> ReducerResult<*, *>.assertHasEffect(
 public fun <STATE, MESSAGE, EFFECT> MateReducer<STATE, MESSAGE, EFFECT>.testReduce(
     initialState: STATE,
     message: MESSAGE,
-): ReducerResult<STATE, EFFECT> {
-    return reduce(initialState, message)
-}
+): ReducerResult<STATE, EFFECT> = reduce(initialState, message)
 
 public fun <STATE, MESSAGE, EFFECT> MateReducer<STATE, MESSAGE, EFFECT>.testScenario(
     initialState: STATE,

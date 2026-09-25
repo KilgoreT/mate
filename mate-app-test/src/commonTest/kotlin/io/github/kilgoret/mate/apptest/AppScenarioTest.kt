@@ -10,7 +10,10 @@ class AppScenarioTest {
     @Test
     fun launchSendAndCascadeThroughEffect() {
         val persisted = mutableListOf<Int>()
-        runAppScenario(miniRegistry(live = stubFlow(), persist = { persisted += it }), miniNavGraph) {
+        runAppScenario(
+            miniRegistry(live = stubFlow(), persist = { persisted += it }),
+            miniNavGraph,
+        ) {
             launch(CounterScreen)
 
             send(CounterMsg.Inc)
@@ -102,10 +105,9 @@ class AppScenarioTest {
             send(CounterMsg.OpenDetails(1))
 
             // На узле деталей семейства CounterMsg нет — громкий fail.
-            val error =
-                assertFailsWith<IllegalStateException> {
-                    send(CounterMsg.Inc)
-                }
+            val error = assertFailsWith<IllegalStateException> {
+                send(CounterMsg.Inc)
+            }
             assertTrue(error.message!!.contains("No runner"))
         }
     }
@@ -131,14 +133,13 @@ class AppScenarioTest {
 
     @Test
     fun failedAssertCarriesFullTrace() {
-        val error =
-            assertFailsWith<AssertionError> {
-                runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
-                    launch(CounterScreen)
-                    send(CounterMsg.Inc)
-                    expectState<CounterState> { assertEquals(99, it.value) }
-                }
+        val error = assertFailsWith<AssertionError> {
+            runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+                launch(CounterScreen)
+                send(CounterMsg.Inc)
+                expectState<CounterState> { assertEquals(99, it.value) }
             }
+        }
         assertTrue(error.message!!.contains("harness trace"))
         assertTrue(error.message!!.contains("Persist"))
     }

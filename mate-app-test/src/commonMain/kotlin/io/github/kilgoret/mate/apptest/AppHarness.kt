@@ -41,12 +41,11 @@ public class AppHarness internal constructor(
      * lifecycle-пауз нет (само поведение гейта покрыто тестами
      * mate-navigation).
      */
-    public val navigationHandler: MateNavigationHandler =
-        MateNavigationHandler(
-            graph = graph,
-            executor = NavigationExecutor { command -> execute(command) },
-            readiness = MutableStateFlow(true),
-        )
+    public val navigationHandler: MateNavigationHandler = MateNavigationHandler(
+        graph = graph,
+        executor = NavigationExecutor { command -> execute(command) },
+        readiness = MutableStateFlow(true),
+    )
 
     internal fun attach() {
         navigationHandler.attach(scope)
@@ -63,13 +62,14 @@ public class AppHarness internal constructor(
     internal fun push(screen: Screen) {
         // Job узла — РЕБЁНОК scope сценария: конец сценария гасит все
         // узлы (и их вечные тикеры) даже без явных pop'ов.
-        val nodeScope = CoroutineScope(scope.coroutineContext + Job(parent = scope.coroutineContext[Job]))
-        val context =
-            HarnessContext(
-                scope = nodeScope,
-                observer = recording,
-                navigationHandler = navigationHandler,
-            )
+        val nodeScope = CoroutineScope(
+            scope.coroutineContext + Job(parent = scope.coroutineContext[Job]),
+        )
+        val context = HarnessContext(
+            scope = nodeScope,
+            observer = recording,
+            navigationHandler = navigationHandler,
+        )
         val node = registry.create(screen, context)
         stack += NodeEntry(node, nodeScope)
         recording.onScreenPushed(screen)
@@ -102,21 +102,20 @@ public class AppHarness internal constructor(
     internal fun send(message: Any) {
         val node = currentNode
         val matches = node.runners.filter { it.messageFamily.isInstance(message) }
-        val slot =
-            when (matches.size) {
-                1 -> matches.single()
-                0 ->
-                    error(
-                        "No runner in node '${node.screen::class.simpleName}' accepts " +
-                            "${message::class.simpleName}; families: " +
-                            node.runners.map { "${it.name}:${it.messageFamily.simpleName}" },
-                    )
-                else ->
-                    error(
-                        "Message ${message::class.simpleName} matches several runners: " +
-                            matches.map { it.name },
-                    )
-            }
+        val slot = when (matches.size) {
+            1 -> matches.single()
+            0 ->
+                error(
+                    "No runner in node '${node.screen::class.simpleName}' accepts " +
+                        "${message::class.simpleName}; families: " +
+                        node.runners.map { "${it.name}:${it.messageFamily.simpleName}" },
+                )
+            else ->
+                error(
+                    "Message ${message::class.simpleName} matches several runners: " +
+                        matches.map { it.name },
+                )
+        }
         slot.accept(message)
     }
 

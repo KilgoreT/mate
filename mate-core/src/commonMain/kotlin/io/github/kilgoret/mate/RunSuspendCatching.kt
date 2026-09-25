@@ -21,11 +21,10 @@ import kotlinx.coroutines.CancellationException
  *     .getOrElse { fallback }
  * ```
  */
-public inline fun <T> runSuspendCatching(block: () -> T): Result<T> =
-    try {
-        Result.success(block())
-    } catch (error: CancellationException) {
-        throw error
-    } catch (error: Throwable) {
-        Result.failure(error)
-    }
+public inline fun <T> runSuspendCatching(block: () -> T): Result<T> = try {
+    Result.success(block())
+} catch (error: CancellationException) {
+    throw error
+} catch (error: Throwable) {
+    Result.failure(error)
+}
