@@ -8,9 +8,9 @@ import io.github.kilgoret.mate.MateSubscriptionHandler
 import io.github.kilgoret.mate.NavigationEffect
 import io.github.kilgoret.mate.ReducerResult
 import io.github.kilgoret.mate.Subscription
-import io.github.kilgoret.mate.navigation.NavGraph
+import io.github.kilgoret.mate.navigation.NavTable
 import io.github.kilgoret.mate.navigation.Screen
-import io.github.kilgoret.mate.navigation.navGraph
+import io.github.kilgoret.mate.navigation.navTable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -151,7 +151,7 @@ class DetailsReducer : MateReducer<DetailsState, DetailsMsg, Effect> {
 
 // ===== Сборка =====
 
-val miniNavGraph: NavGraph = navGraph {
+val miniNavTable: NavTable = navTable {
     on<NavigationEffect.Back> { pop() }
     on<CounterNav.OpenDetails> { push(DetailsScreen(it.id)) }
 }

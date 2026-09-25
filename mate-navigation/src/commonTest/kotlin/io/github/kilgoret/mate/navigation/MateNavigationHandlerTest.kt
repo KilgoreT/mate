@@ -29,7 +29,7 @@ class MateNavigationHandlerTest {
         }
     }
 
-    private val graph = navGraph {
+    private val table = navTable {
         on<Nav.OpenDetails> { push(DetailsScreen(it.id)) }
         on<NavigationEffect.Back> { pop() }
     }
@@ -38,7 +38,7 @@ class MateNavigationHandlerTest {
     fun openGateExecutesImmediatelyInFifoOrder() = runMateTest { mateScope ->
         val executor = RecordingExecutor()
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = MutableStateFlow(true),
         )
@@ -59,7 +59,7 @@ class MateNavigationHandlerTest {
         val executor = RecordingExecutor()
         val gate = MutableStateFlow(false)
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = gate,
         )
@@ -89,7 +89,7 @@ class MateNavigationHandlerTest {
         // обязан остаться в очереди до повторного открытия.
         executor.onExecute = { gate.value = false }
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = gate,
         )
@@ -118,7 +118,7 @@ class MateNavigationHandlerTest {
         val gate = MutableStateFlow(false)
         val dropped = mutableListOf<NavigationEffect>()
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = gate,
             // Нулевой срок годности: любой отложенный переход
@@ -139,7 +139,7 @@ class MateNavigationHandlerTest {
     @Test
     fun effectWithoutRouteFailsLoudlyOnDispatch() = runMateTest { mateScope ->
         val handler = MateNavigationHandler(
-            graph = navGraph { on<NavigationEffect.Back> { pop() } },
+            table = navTable { on<NavigationEffect.Back> { pop() } },
             executor = RecordingExecutor(),
             readiness = MutableStateFlow(true),
         )
@@ -155,7 +155,7 @@ class MateNavigationHandlerTest {
         val executor = RecordingExecutor()
         val gate = MutableStateFlow(false)
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = gate,
         )
@@ -191,7 +191,7 @@ class MateNavigationHandlerTest {
     fun sharedHandlerPlugsIntoTypedMateRunner() = runMateTest { mateScope ->
         val executor = RecordingExecutor()
         val handler = MateNavigationHandler(
-            graph = graph,
+            table = table,
             executor = executor,
             readiness = MutableStateFlow(true),
         )

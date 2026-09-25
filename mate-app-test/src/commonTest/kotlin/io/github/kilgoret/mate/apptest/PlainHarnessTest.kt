@@ -30,7 +30,7 @@ class PlainHarnessTest {
 
     @Test
     fun plainNodeSendAndExpect() {
-        runAppScenario(registry, miniNavGraph) {
+        runAppScenario(registry, miniNavTable) {
             launch(CounterScreen)
             send(PanelMsg.SetNote("x"))
             expectState<PanelState> { assertEquals("x", it.note) }

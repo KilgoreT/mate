@@ -9,17 +9,17 @@ import kotlin.reflect.KClass
  * и прод-исполнитель, и тестовый харнес, поэтому разойтись они не
  * могут.
  *
- * Создаётся билдером [navGraph]; резолв эффекта в список [NavCommand]
+ * Создаётся билдером [navTable]; резолв эффекта в список [NavCommand]
  * выполняет [io.github.kilgoret.mate.navigation.MateNavigationHandler].
  * Правила громкости — как у роутинга эффектов: дубль маршрута — fail
  * при создании, эффект без маршрута — fail при диспатче.
  */
-public class NavGraph internal constructor(
-    private val routes: Map<KClass<out NavigationEffect>, NavRouteScope.(NavigationEffect) -> Unit>,
+public class NavTable internal constructor(
+    private val routes: Map<KClass<out NavigationEffect>, NavTableScope.(NavigationEffect) -> Unit>,
 ) {
     /** Кэш резолва «конкретный класс эффекта → маршрут». */
     private val resolveCache =
-        mutableMapOf<KClass<*>, (NavRouteScope.(NavigationEffect) -> Unit)?>()
+        mutableMapOf<KClass<*>, (NavTableScope.(NavigationEffect) -> Unit)?>()
 
     /**
      * Перевести эффект в команды по таблице; null — маршрута нет
@@ -31,14 +31,14 @@ public class NavGraph internal constructor(
      */
     public fun resolve(effect: NavigationEffect): List<NavCommand>? {
         val route = resolveRoute(effect) ?: return null
-        val scope = NavRouteScope()
+        val scope = NavTableScope()
         scope.route(effect)
         return scope.commands
     }
 
     private fun resolveRoute(
         effect: NavigationEffect,
-    ): (NavRouteScope.(NavigationEffect) -> Unit)? {
+    ): (NavTableScope.(NavigationEffect) -> Unit)? {
         val effectClass = effect::class
         resolveCache[effectClass]?.let { return it }
 
@@ -63,7 +63,7 @@ public class NavGraph internal constructor(
  * [pop] записывают команды перехода (обычно одну; несколько — это
  * составной переход, исполняется по порядку).
  */
-public class NavRouteScope internal constructor() {
+public class NavTableScope internal constructor() {
     internal val commands: MutableList<NavCommand> = mutableListOf()
 
     /** Записать переход на [screen] (данные экрана — с аргументами). */
@@ -78,18 +78,18 @@ public class NavRouteScope internal constructor() {
 }
 
 /** Билдер таблицы: по строке [on] на каждый навигационный эффект. */
-public class NavGraphBuilder internal constructor() {
+public class NavTableBuilder internal constructor() {
     @PublishedApi
     internal val routes:
-        MutableMap<KClass<out NavigationEffect>, NavRouteScope.(NavigationEffect) -> Unit> =
+        MutableMap<KClass<out NavigationEffect>, NavTableScope.(NavigationEffect) -> Unit> =
         mutableMapOf()
 
     /**
      * Объявить маршрут эффекта [E]: лямбда получает сам эффект и
-     * записывает команды через [NavRouteScope.push]/[NavRouteScope.pop].
+     * записывает команды через [NavTableScope.push]/[NavTableScope.pop].
      * Повторная строка на тот же эффект — ошибка конфигурации.
      */
-    public inline fun <reified E : NavigationEffect> on(noinline route: NavRouteScope.(E) -> Unit) {
+    public inline fun <reified E : NavigationEffect> on(noinline route: NavTableScope.(E) -> Unit) {
         val previous = routes.put(E::class) { effect ->
             @Suppress("UNCHECKED_CAST")
             route(effect as E)
@@ -104,14 +104,14 @@ public class NavGraphBuilder internal constructor() {
  * Собрать таблицу навигации приложения:
  *
  * ```
- * val appNavGraph = navGraph {
+ * val appNavTable = navTable {
  *     on<WordsNavigationEffect.OpenWordCard> { push(WordCardScreen(it.wordId)) }
  *     on<NavigationEffect.Back> { pop() }
  * }
  * ```
  */
-public fun navGraph(build: NavGraphBuilder.() -> Unit): NavGraph = NavGraph(
-    NavGraphBuilder()
+public fun navTable(build: NavTableBuilder.() -> Unit): NavTable = NavTable(
+    NavTableBuilder()
         .apply(build)
         .routes
         .toMap(),

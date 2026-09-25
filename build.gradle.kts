@@ -16,6 +16,15 @@ allprojects {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "org.jetbrains.kotlinx.kover")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        version.set("1.5.0")
+    }
+
+    dependencies {
+        // Кастомные правила стиля (см. .editorconfig, секция kilgoret).
+        "ktlintRuleset"("io.github.kilgoret:ktlint-rules:0.1.0")
+    }
 }
 
 dependencies {

@@ -2,7 +2,7 @@ package io.github.kilgoret.mate.apptest
 
 import io.github.kilgoret.mate.navigation.MateNavigationHandler
 import io.github.kilgoret.mate.navigation.NavCommand
-import io.github.kilgoret.mate.navigation.NavGraph
+import io.github.kilgoret.mate.navigation.NavTable
 import io.github.kilgoret.mate.navigation.NavigationExecutor
 import io.github.kilgoret.mate.navigation.Screen
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * Ядро харнеса: стек узлов + второй интерпретатор навигации.
  *
  * Навигация исполняется ТЕМ ЖЕ [MateNavigationHandler] и ТОЙ ЖЕ
- * таблицей [NavGraph], что в проде, — отличается только «мышца»
+ * таблицей [NavTable], что в проде, — отличается только «мышца»
  * ([NavigationExecutor]): Push создаёт узел через [ScreenRegistry] и
  * кладёт на стек, Pop снимает верхний узел и отменяет его scope
  * (циклы раннеров узла умирают). Разойтись с продом таблица не может
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
  */
 public class AppHarness internal constructor(
     private val registry: ScreenRegistry,
-    graph: NavGraph,
+    table: NavTable,
     private val scope: CoroutineScope,
 ) {
     /** Единая лента событий всех раннеров сценария. */
@@ -42,7 +42,7 @@ public class AppHarness internal constructor(
      * mate-navigation).
      */
     public val navigationHandler: MateNavigationHandler = MateNavigationHandler(
-        graph = graph,
+        table = table,
         executor = NavigationExecutor { command -> execute(command) },
         readiness = MutableStateFlow(true),
     )

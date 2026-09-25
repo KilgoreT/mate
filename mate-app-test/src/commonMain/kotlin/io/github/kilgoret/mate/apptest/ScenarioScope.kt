@@ -1,7 +1,7 @@
 package io.github.kilgoret.mate.apptest
 
 import io.github.kilgoret.mate.Effect
-import io.github.kilgoret.mate.navigation.NavGraph
+import io.github.kilgoret.mate.navigation.NavTable
 import io.github.kilgoret.mate.navigation.Screen
 import io.github.kilgoret.mate.test.runMateTest
 import kotlinx.coroutines.test.TestResult
@@ -13,7 +13,7 @@ import kotlin.time.Duration
  * времени (`runMateTest`) и исполняет [block] в DSL [ScenarioScope].
  *
  * ```
- * runAppScenario(registry, appNavGraph) {
+ * runAppScenario(registry, appNavTable) {
  *     launch(AppScreen.Main)
  *     send(Msg.AddWordClick)
  *     expectEffect(DatasourceEffect.CreateWord("dom"))
@@ -25,10 +25,10 @@ import kotlin.time.Duration
  */
 public fun runAppScenario(
     registry: ScreenRegistry,
-    graph: NavGraph,
+    table: NavTable,
     block: suspend ScenarioScope.() -> Unit,
 ): TestResult = runMateTest { mateScope ->
-    val harness = AppHarness(registry, graph, mateScope)
+    val harness = AppHarness(registry, table, mateScope)
     harness.attach()
     ScenarioScope(harness, this).block()
 }

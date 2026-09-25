@@ -22,7 +22,7 @@ import kotlin.time.TimeSource
  * [MateEffectHandler]).
  *
  * Цикл жизни эффекта:
- * 1. [runEffect] резолвит эффект по таблице [graph] СРАЗУ — эффект
+ * 1. [runEffect] резолвит эффект по таблице [table] СРАЗУ — эффект
  *    без маршрута громко валится ещё на диспатче (ошибка
  *    конфигурации, уходит в fail-policy раннера);
  * 2. готовые команды встают в внутреннюю FIFO-очередь БЕЗ лимита —
@@ -39,7 +39,7 @@ import kotlin.time.TimeSource
  * lifecycle: STARTED = true): навигация в закрытый гейт не теряется
  * (намерение свято), а ждёт открытия и исполняется накопленной пачкой.
  *
- * @param graph таблица «эффект → команды» — единственный источник
+ * @param table таблица «эффект → команды» — единственный источник
  *   знания о переходах.
  * @param executor исполнитель команд (прод: NavController-адаптер;
  *   тест: стек раннеров).
@@ -53,7 +53,7 @@ import kotlin.time.TimeSource
  *   каждый отброшенный эффект.
  */
 public class MateNavigationHandler(
-    private val graph: NavGraph,
+    private val table: NavTable,
     private val executor: NavigationExecutor,
     private val readiness: StateFlow<Boolean>,
     private val staleness: Duration? = null,
@@ -80,8 +80,8 @@ public class MateNavigationHandler(
     private var drainJob: Job? = null
 
     override suspend fun runEffect(effect: NavigationEffect, consumer: (Nothing) -> Unit) {
-        val commands = checkNotNull(graph.resolve(effect)) {
-            "No navigation route for '${effect::class.simpleName}': add it to navGraph"
+        val commands = checkNotNull(table.resolve(effect)) {
+            "No navigation route for '${effect::class.simpleName}': add it to navTable"
         }
         queue.trySend(
             Queued(

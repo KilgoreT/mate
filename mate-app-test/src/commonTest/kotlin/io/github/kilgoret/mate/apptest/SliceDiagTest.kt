@@ -50,7 +50,7 @@ class SliceDiagTest {
 
     @Test
     fun counterWithoutSubscriptions() {
-        runAppScenario(counterRegistry(live = null, ticker = false), miniNavGraph) {
+        runAppScenario(counterRegistry(live = null, ticker = false), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.Inc)
             expectState<CounterState> { assertEquals(1, it.value) }
@@ -60,7 +60,7 @@ class SliceDiagTest {
     @Test
     fun counterWithLiveOnly() {
         val live = stubFlow<List<String>>()
-        runAppScenario(counterRegistry(live = live, ticker = false), miniNavGraph) {
+        runAppScenario(counterRegistry(live = live, ticker = false), miniNavTable) {
             launch(CounterScreen)
             live.emit(listOf("a"))
             awaitIdle()
@@ -129,7 +129,7 @@ class SliceDiagTest {
                 )
             }
         }
-        runAppScenario(registry, miniNavGraph) {
+        runAppScenario(registry, miniNavTable) {
             launch(CounterScreen)
             advanceTimeBy(
                 kotlin
@@ -143,7 +143,7 @@ class SliceDiagTest {
 
     @Test
     fun counterWithTickerOnly() {
-        runAppScenario(counterRegistry(live = null, ticker = true), miniNavGraph) {
+        runAppScenario(counterRegistry(live = null, ticker = true), miniNavTable) {
             launch(CounterScreen)
             advanceTimeBy(
                 kotlin

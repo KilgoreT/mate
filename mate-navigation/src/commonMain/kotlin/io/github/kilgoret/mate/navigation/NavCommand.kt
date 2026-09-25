@@ -1,7 +1,7 @@
 package io.github.kilgoret.mate.navigation
 
 /**
- * Команда навигации — данные, в которые [NavGraph] переводит
+ * Команда навигации — данные, в которые [NavTable] переводит
  * навигационный эффект. Исполняет команды [NavigationExecutor];
  * таблица и раннер сами ничего с ними не делают.
  */
@@ -18,10 +18,10 @@ public sealed interface NavCommand {
 }
 
 /**
- * Исполнитель навигационных команд — «мышца» навигации, единственное
- * место, знающее, что такое экран. У приложения это адаптер над
- * NavController (push → navigate, pop → popBackStack), у тестового
- * харнеса — стек раннеров.
+ * Исполнитель навигационных команд — единственное место, знающее,
+ * что такое экран. У приложения это адаптер над NavController
+ * (push → navigate, pop → popBackStack), у тестового харнеса — стек
+ * раннеров.
  */
 public fun interface NavigationExecutor {
     public fun execute(command: NavCommand)

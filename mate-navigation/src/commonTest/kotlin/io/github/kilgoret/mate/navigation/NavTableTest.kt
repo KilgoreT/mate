@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
-class NavGraphTest {
+class NavTableTest {
     private data class CardScreen(val wordId: Long) : Screen
 
     private sealed interface WordsNav : NavigationEffect {
@@ -17,50 +17,50 @@ class NavGraphTest {
 
     @Test
     fun resolvesExactEffectClassToCommands() {
-        val graph = navGraph {
+        val table = navTable {
             on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
             on<NavigationEffect.Back> { pop() }
         }
 
         assertEquals(
             listOf<NavCommand>(NavCommand.Push(CardScreen(42))),
-            graph.resolve(WordsNav.OpenCard(42)),
+            table.resolve(WordsNav.OpenCard(42)),
         )
-        assertEquals(listOf<NavCommand>(NavCommand.Pop), graph.resolve(NavigationEffect.Back))
+        assertEquals(listOf<NavCommand>(NavCommand.Pop), table.resolve(NavigationEffect.Back))
     }
 
     @Test
     fun resolvesSubgroupEffectThroughSupertypeRoute() {
         // Строка на всю подгруппу: любой WordsNav-эффект ведёт назад.
-        val graph = navGraph { on<WordsNav> { pop() } }
+        val table = navTable { on<WordsNav> { pop() } }
 
-        assertEquals(listOf<NavCommand>(NavCommand.Pop), graph.resolve(WordsNav.OpenSettings))
+        assertEquals(listOf<NavCommand>(NavCommand.Pop), table.resolve(WordsNav.OpenSettings))
     }
 
     @Test
     fun exactRouteWinsOverSupertypeRoute() {
-        val graph = navGraph {
+        val table = navTable {
             on<WordsNav> { pop() }
             on<WordsNav.OpenCard> { push(CardScreen(it.wordId)) }
         }
 
         assertEquals(
             listOf<NavCommand>(NavCommand.Push(CardScreen(1))),
-            graph.resolve(WordsNav.OpenCard(1)),
+            table.resolve(WordsNav.OpenCard(1)),
         )
     }
 
     @Test
     fun effectWithoutRouteResolvesToNull() {
-        val graph = navGraph { on<NavigationEffect.Back> { pop() } }
+        val table = navTable { on<NavigationEffect.Back> { pop() } }
 
-        assertNull(graph.resolve(WordsNav.OpenSettings))
+        assertNull(table.resolve(WordsNav.OpenSettings))
     }
 
     @Test
     fun duplicateRouteFailsOnBuild() {
         assertFailsWith<IllegalArgumentException> {
-            navGraph {
+            navTable {
                 on<NavigationEffect.Back> { pop() }
                 on<NavigationEffect.Back> { pop() }
             }
@@ -70,7 +70,7 @@ class NavGraphTest {
     @Test
     fun compositeRouteKeepsCommandOrder() {
         // Составной переход: pop текущего + push нового — по порядку.
-        val graph = navGraph {
+        val table = navTable {
             on<WordsNav.OpenCard> {
                 pop()
                 push(CardScreen(it.wordId))
@@ -79,7 +79,7 @@ class NavGraphTest {
 
         assertEquals(
             listOf(NavCommand.Pop, NavCommand.Push(CardScreen(7))),
-            graph.resolve(WordsNav.OpenCard(7)),
+            table.resolve(WordsNav.OpenCard(7)),
         )
     }
 }

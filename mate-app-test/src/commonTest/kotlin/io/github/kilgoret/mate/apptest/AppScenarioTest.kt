@@ -12,7 +12,7 @@ class AppScenarioTest {
         val persisted = mutableListOf<Int>()
         runAppScenario(
             miniRegistry(live = stubFlow(), persist = { persisted += it }),
-            miniNavGraph,
+            miniNavTable,
         ) {
             launch(CounterScreen)
 
@@ -26,7 +26,7 @@ class AppScenarioTest {
 
     @Test
     fun navigationPushesAndPopsNodesThroughSharedTable() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             assertEquals(listOf<Any>(CounterScreen), screens)
 
@@ -43,7 +43,7 @@ class AppScenarioTest {
 
     @Test
     fun systemBackPopsTopNode() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.OpenDetails(1))
             expectScreen(DetailsScreen(1))
@@ -57,7 +57,7 @@ class AppScenarioTest {
     @Test
     fun stubFlowDrivesLiveSubscription() {
         val live = stubFlow<List<String>>()
-        runAppScenario(miniRegistry(live = live), miniNavGraph) {
+        runAppScenario(miniRegistry(live = live), miniNavTable) {
             launch(CounterScreen)
             expectState<CounterState> { assertEquals(emptyList(), it.live) }
 
@@ -74,7 +74,7 @@ class AppScenarioTest {
 
     @Test
     fun virtualTimeDrivesTicker() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             expectState<CounterState> { assertEquals(0, it.ticks) }
 
@@ -86,7 +86,7 @@ class AppScenarioTest {
 
     @Test
     fun sendRoutesByMessageFamilyInsideNode() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
 
             // Два раннера в узле: сообщение находит своего по семейству.
@@ -100,7 +100,7 @@ class AppScenarioTest {
 
     @Test
     fun sendWithoutMatchingRunnerFailsLoudly() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.OpenDetails(1))
 
@@ -115,7 +115,7 @@ class AppScenarioTest {
     @Test
     fun popKillsNodeSubscriptions() {
         val live = stubFlow<List<String>>()
-        runAppScenario(miniRegistry(live = live), miniNavGraph) {
+        runAppScenario(miniRegistry(live = live), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.OpenDetails(1))
             back() // детали умерли
@@ -134,7 +134,7 @@ class AppScenarioTest {
     @Test
     fun failedAssertCarriesFullTrace() {
         val error = assertFailsWith<AssertionError> {
-            runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+            runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
                 launch(CounterScreen)
                 send(CounterMsg.Inc)
                 expectState<CounterState> { assertEquals(99, it.value) }
@@ -146,7 +146,7 @@ class AppScenarioTest {
 
     @Test
     fun expectEffectCursorMovesStrictlyForward() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.Inc)
             send(CounterMsg.Inc)
@@ -162,7 +162,7 @@ class AppScenarioTest {
 
     @Test
     fun expectNoEffectSeesOnlyUnconsumedTail() {
-        runAppScenario(miniRegistry(live = stubFlow()), miniNavGraph) {
+        runAppScenario(miniRegistry(live = stubFlow()), miniNavTable) {
             launch(CounterScreen)
             send(CounterMsg.Inc)
 
